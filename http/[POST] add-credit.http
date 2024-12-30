@@ -1,9 +1,10 @@
-POST https://0v56vgdalf.execute-api.us-east-1.amazonaws.com/dev/api/customers/{{userId}}/credit
-x-api-key: wXnvKbose91eG0STX4BHB5czspaK7kTn85XlRxVu
+### Add Credit to Customer
+@customerId = customer123
+
+POST {{baseUrl}}/api/customers/{{customerId}}/credit
+x-api-key: {{apiKey}}
 Content-Type: application/json
 
 {
-    "amount": 500
+  "amount": 500
 }
-
-### Replace {{userId}} with an actual customer ID

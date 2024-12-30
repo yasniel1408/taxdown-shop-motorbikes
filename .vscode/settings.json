@@ -1,0 +1,16 @@
+{
+  "rest-client.environmentVariables": {
+    "$shared": {
+      "apiVersion": "v1",
+      "contentType": "application/json"
+    },
+    "local": {
+      "baseUrl": "http://localhost:3000",
+      "apiKey": "test-api-key"
+    },
+    "dev": {
+      "baseUrl": "https://0v56vgdalf.execute-api.us-east-1.amazonaws.com",
+      "apiKey": "wXnvKbose91eG0STX4BHB5czspaK7kTn85XlRxVu"
+    }
+  }
+}

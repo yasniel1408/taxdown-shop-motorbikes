@@ -11,7 +11,7 @@ custom:
   apiGateway:
     apiKeys:
       - name: shop-motorbikes-api-key
-        description: API Key for shop-motorbikes API
+        description: API Key for shop-motorbikes service
   esbuild:
     bundle: true
     minify: true
@@ -22,6 +22,12 @@ custom:
       'require.resolve': undefined
     platform: 'node'
     concurrency: 10
+  serverless-offline:
+    httpPort: 3000
+    lambdaPort: 3002
+    apiKey: test-api-key
+    noPrependStageInUrl: true
+    resourceRoutes: true
 
 stages:
   default:
