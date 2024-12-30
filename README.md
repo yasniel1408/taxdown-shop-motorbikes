@@ -35,7 +35,6 @@ The project follows a clean architecture approach with three main layers:
 ## Prerequisites
 
 - Node.js 18.x or later
-- AWS CLI configured with appropriate credentials
 - Serverless Framework CLI (`npm install -g serverless`)
 - Visual Studio Code
     - [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
@@ -44,7 +43,7 @@ The project follows a clean architecture approach with three main layers:
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/yasniel1408/taxdown-shop-motorbikes
 cd shop-motorbikes
 ```
 
@@ -89,18 +88,14 @@ The project includes `.http` files in the `/http` directory for testing all endp
 └── [POST] add-credit.http
 ```
 
-### Testing Steps
+### Develop environment test
 
 1. Get your API key from the deployment output
-2. Update the API key in the `.http` files
-3. Run the requests in the following order:
-   - Health check (verify API is running)
-   - Create customer (add a new customer)
-   - Get customer (verify customer was created)
-   - Update customer (modify customer details)
-   - Add credit (increase customer's credit)
-   - List all customers (verify changes)
-   - Delete customer (clean up)
+2. Update the API key in the ./vscode/settings.json file
+3. Select environment `dev`
+4. Execute *.http files
+![Steps](./doc/image-test.png)
+
 
 ## Project Structure
 
@@ -120,22 +115,6 @@ src/
     │   └── out/        # Output adapters (repositories)
     └── config/         # Configuration
 ```
-
-### Key Components
-
-1. **Domain Layer**
-   - `Customer` entity: Core business logic for customers
-   - `Credit` value object: Immutable value object for credit amounts
-
-2. **Application Layer**
-   - `CustomerUseCases`: Input port defining all use cases
-   - `CustomerRepository`: Output port for persistence
-   - `CustomerService`: Implementation of use cases
-
-3. **Infrastructure Layer**
-   - `CustomerController`: REST API adapter
-   - `DynamoDBCustomerRepository`: DynamoDB adapter
-   - Express configuration and middleware
 
 ## Environment Variables
 
@@ -165,21 +144,3 @@ src/
    - Consistent error response format
    - Production-safe error messages
    - Detailed logging for debugging
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests
-5. Commit your changes (`git commit -m 'Add some amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Submit a pull request
-
-## License
-
-MIT
-
-## Support
-
-For support, please open an issue in the repository or contact the development team.
