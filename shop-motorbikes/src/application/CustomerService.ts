@@ -1,6 +1,6 @@
 import { Customer } from '../domain/entities/Customer';
 import { CustomerRepository } from '../domain/ports/out/CustomerRepository';
-import { CustomerUseCases, CreateCustomerCommand, UpdateCustomerCommand, AddCreditCommand } from '../ports/in/CustomerUseCases';
+import { CustomerUseCases, CreateCustomerCommand, UpdateCustomerCommand, AddCreditCommand } from '../domain/ports/in/CustomerUseCases';
 
 export class CustomerService implements CustomerUseCases {
   constructor(private readonly customerRepository: CustomerRepository) {}

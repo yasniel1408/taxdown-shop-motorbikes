@@ -1,4 +1,4 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, ReturnValue } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   GetCommand,
@@ -84,7 +84,7 @@ export class DynamoDBCustomerRepository implements CustomerRepository {
         ":phone": customer.phone,
         ":availableCredit": customer.credit,
       },
-      ReturnValues: "ALL_NEW",
+      ReturnValues: ReturnValue.ALL_NEW,
     };
 
     const result = await this.docClient.send(new UpdateCommand(params));

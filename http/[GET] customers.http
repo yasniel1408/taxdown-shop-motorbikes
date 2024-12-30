@@ -1,4 +1,4 @@
 ### Get All Customers
-GET {{baseUrl}}/dev/api/customers HTTP/1.1
+GET {{baseUrl}}/{{environment}}/api/customers HTTP/1.1
 x-api-key: {{apiKey}}
 Content-Type: application/json

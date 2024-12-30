@@ -1,7 +1,7 @@
 ### Update Customer
 @customerId = customer123
 
-PUT {{baseUrl}}/dev/api/customers/{{customerId}}
+PUT {{baseUrl}}/{{environment}}/api/customers/{{customerId}}
 x-api-key: {{apiKey}}
 Content-Type: application/json
 

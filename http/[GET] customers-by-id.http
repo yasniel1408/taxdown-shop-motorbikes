@@ -1,8 +1,8 @@
 ### Get Customer by ID
 @customerId = your-customer-id
 
-GET http://localhost:3000/dev/api/customers/{{customerId}}
-x-api-key: wXnvKbose91eG0STX4BHB5czspaK7kTn85XlRxVu
+GET {{baseUrl}}/{{environment}}/api/customers/{{customerId}}
+x-api-key: {{apiKey}}
 Content-Type: application/json
 
 ### Replace {{customerId}} with an actual customer ID

@@ -1,7 +1,7 @@
 ### Add Credit to Customer
 @customerId = customer123
 
-POST {{baseUrl}}/api/customers/{{customerId}}/credit
+POST {{baseUrl}}/{{environment}}/api/customers/{{customerId}}/credit
 x-api-key: {{apiKey}}
 Content-Type: application/json
 

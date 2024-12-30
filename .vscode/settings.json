@@ -9,8 +9,14 @@
       "apiKey": "test-api-key"
     },
     "dev": {
-      "baseUrl": "https://0v56vgdalf.execute-api.us-east-1.amazonaws.com",
-      "apiKey": "wXnvKbose91eG0STX4BHB5czspaK7kTn85XlRxVu"
+      "baseUrl": "https://l9dgpocjjk.execute-api.us-east-1.amazonaws.com",
+      "apiKey": "81KWFxEUup6XWLQZu7UnC9HKtkZucY8K9126IB69",
+      "environment": "dev"
+    },
+    "prod": {
+      "baseUrl": "https://3kpiu3p6f6.execute-api.us-east-1.amazonaws.com",
+      "apiKey": "do4z2Ihp0L0KL7XIpEYc9s7Ogon19WTu2gDgbjj0",
+      "environment": "prod"
     }
   }
 }
