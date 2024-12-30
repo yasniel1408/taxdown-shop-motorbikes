@@ -7,9 +7,8 @@ import {
   DeleteCommand,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { CustomerRepository } from "../../../../application/ports/out/CustomerRepository";
 import { Customer } from "../../../../domain/entities/Customer";
-import { Credit } from "../../../../domain/value-objects/Credit";
+import { CustomerRepository } from "../../../../domain/ports/out/CustomerRepository";
 
 export class DynamoDBCustomerRepository implements CustomerRepository {
   private readonly docClient: DynamoDBDocumentClient;

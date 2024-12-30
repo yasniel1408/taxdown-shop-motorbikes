@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { CustomerUseCases } from '../../../../application/ports/in/CustomerUseCases';
+import { CustomerUseCases } from '../../../../domain/ports/in/CustomerUseCases';
 
 export class CustomerController {
   constructor(private readonly customerService: CustomerUseCases) {}

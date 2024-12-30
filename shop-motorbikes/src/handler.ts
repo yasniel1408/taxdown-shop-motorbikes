@@ -1,7 +1,7 @@
 import serverless from 'serverless-http';
 import { createExpressApp } from './infrastructure/config/express';
 import { CustomerController } from './infrastructure/adapters/in/api/CustomerController';
-import { CustomerService } from './application/services/CustomerService';
+import { CustomerService } from './application/CustomerService';
 import { DynamoDBCustomerRepository } from './infrastructure/adapters/out/persistence/DynamoDBCustomerRepository';
 
 // Dependency injection
