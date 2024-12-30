@@ -4,9 +4,9 @@ x-api-key: {{apiKey}}
 Content-Type: application/json
 
 {
-  "userId": "customer123",
-  "name": "John Doe",
-  "email": "john@example.com",
+  "userId": "customer1234",
+  "name": "Peter Parker",
+  "email": "parker@example.com",
   "phone": "+1234567890",
-  "availableCredit": 1000
+  "availableCredit": 2000
 }

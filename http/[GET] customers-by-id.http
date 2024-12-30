@@ -1,5 +1,5 @@
 ### Get Customer by ID
-@customerId = your-customer-id
+@customerId = customer1234
 
 GET {{baseUrl}}/{{environment}}/api/customers/{{customerId}}
 x-api-key: {{apiKey}}

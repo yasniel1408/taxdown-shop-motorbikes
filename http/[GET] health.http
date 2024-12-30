@@ -1,4 +1,4 @@
 ### Health Check
-GET {{baseUrl}}/api/health
+GET {{baseUrl}}/{{environment}}/api/health
 x-api-key: {{apiKey}}
 Content-Type: application/json

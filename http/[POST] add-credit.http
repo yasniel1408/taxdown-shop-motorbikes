@@ -1,5 +1,5 @@
 ### Add Credit to Customer
-@customerId = customer123
+@customerId = customer1234
 
 POST {{baseUrl}}/{{environment}}/api/customers/{{customerId}}/credit
 x-api-key: {{apiKey}}
