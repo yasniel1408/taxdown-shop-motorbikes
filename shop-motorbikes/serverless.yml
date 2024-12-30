@@ -1,0 +1,143 @@
+org: yascode
+app: shop-motorbikes-api
+service: shop-motorbikes
+
+frameworkVersion: '4'
+
+plugins:
+  - serverless-offline
+
+custom:
+  apiGateway:
+    apiKeys:
+      - name: shop-motorbikes-api-key
+        description: API Key for shop-motorbikes API
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: true
+    exclude: ['aws-sdk']
+    target: 'node18'
+    define:
+      'require.resolve': undefined
+    platform: 'node'
+    concurrency: 10
+
+stages:
+  default:
+    params:
+      tableName: "customers-table-${sls:stage}"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  apiGateway:
+    apiKeys:
+      - name: ${self:service}-${self:provider.stage}-key
+    usagePlan:
+      quota:
+        limit: 5000
+        period: MONTH
+      throttle:
+        burstLimit: 200
+        rateLimit: 100
+    metrics: true
+  logs:
+    restApi:
+      accessLogging: true
+      executionLogging: true
+      level: INFO
+      fullExecutionData: true
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [CustomersTable, Arn]
+            - Fn::Join:
+                - "/"
+                - - Fn::GetAtt: [CustomersTable, Arn]
+                  - "index/*"
+  environment:
+    USERS_TABLE: ${param:tableName}
+    NODE_ENV: ${self:provider.stage}
+
+functions:
+  api:
+    handler: src/handler.handler
+    events:
+      - http:
+          path: /api/{proxy+}
+          method: ANY
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+          request:
+            parameters:
+              headers:
+                x-api-key: true
+      - http:
+          path: /{proxy+}
+          method: ANY
+          private: true
+          cors: true
+
+resources:
+  Resources:
+    CustomersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: availableCredit
+            AttributeType: N
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: CreditIndex
+            KeySchema:
+              - AttributeName: availableCredit
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${param:tableName}
+    
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+    
+    GatewayResponseDefault5XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'

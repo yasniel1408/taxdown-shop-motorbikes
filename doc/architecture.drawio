@@ -1,0 +1,64 @@
+<mxfile host="65bd71144e">
+    <diagram id="shop-motorbikes-architecture" name="Shop Motorbikes Architecture">
+        <mxGraphModel dx="1017" dy="887" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="API Client&#10;(HTTP Requests)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="200" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="API Gateway&#10;(with API Key)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="295" y="200" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="Lambda Function&#10;(Express.js App)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="549" y="200" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="DynamoDB&#10;(Customers Table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#151414;" parent="1" vertex="1">
+                    <mxGeometry x="843" y="200" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="HTTP Request" style="endArrow=classic;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="2" target="3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Proxy Request" style="endArrow=classic;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="3" target="4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="CRUD Operations" style="endArrow=classic;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="4" target="5" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="Features" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="1" vertex="1">
+                    <mxGeometry x="412.5" y="331" width="140" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="- Health Check" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" parent="13" vertex="1">
+                    <mxGeometry y="30" width="140" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="- CRUD Customers" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" parent="13" vertex="1">
+                    <mxGeometry y="50" width="140" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="- Credit Management" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" parent="13" vertex="1">
+                    <mxGeometry y="70" width="140" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="- Error Handling" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" parent="13" vertex="1">
+                    <mxGeometry y="90" width="140" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="- Input Validation" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" parent="13" vertex="1">
+                    <mxGeometry y="110" width="140" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="280" y="85" width="409" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Security Layer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;fontColor=#000000;" parent="22" vertex="1">
+                    <mxGeometry width="409" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="API Key Auth" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#000000;" parent="22" vertex="1">
+                    <mxGeometry x="12.78125" y="14.5" width="102.25" height="29" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="CORS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#000000;" parent="22" vertex="1">
+                    <mxGeometry x="270.87625" y="28" width="102.25" height="29" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="Rate Limiting" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#000000;" parent="22" vertex="1">
+                    <mxGeometry x="282" y="4" width="80" height="24" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

@@ -1,0 +1,12 @@
+PUT https://0v56vgdalf.execute-api.us-east-1.amazonaws.com/dev/api/customers/{{userId}}
+x-api-key: wXnvKbose91eG0STX4BHB5czspaK7kTn85XlRxVu
+Content-Type: application/json
+
+{
+    "name": "John Doe Updated",
+    "email": "john.updated@example.com",
+    "phone": "+1987654321",
+    "availableCredit": 2000
+}
+
+### Replace {{userId}} with an actual customer ID

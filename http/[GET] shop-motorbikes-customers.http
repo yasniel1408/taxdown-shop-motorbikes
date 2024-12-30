@@ -1,0 +1,8 @@
+GET https://0v56vgdalf.execute-api.us-east-1.amazonaws.com/dev/api/customers HTTP/1.1
+x-api-key: wXnvKbose91eG0STX4BHB5czspaK7kTn85XlRxVu
+Content-Type: application/json
+
+###
+
+# This request includes the API key for authentication
+# The API key is from your deployed service

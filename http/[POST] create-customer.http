@@ -1,0 +1,13 @@
+POST https://0v56vgdalf.execute-api.us-east-1.amazonaws.com/dev/api/customers
+x-api-key: wXnvKbose91eG0STX4BHB5czspaK7kTn85XlRxVu
+Content-Type: application/json
+
+{
+    "userId": "customer123",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "+1234567890",
+    "availableCredit": 1000
+}
+
+###
