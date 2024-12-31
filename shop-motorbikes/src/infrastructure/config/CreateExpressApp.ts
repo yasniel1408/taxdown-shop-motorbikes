@@ -18,23 +18,23 @@ export class CreateExpressApp {
     }
 
     private configureMiddleware(): void {
-        // // Security middleware
-        // this.app.use(helmet());
-        // this.app.use(cors());
+        // Security middleware
+        this.app.use(helmet());
+        this.app.use(cors());
 
-        // // Rate limiting middleware
-        // const limiter = rateLimit({
-        //     windowMs: 15 * 60 * 1000, // 15 minutes
-        //     max: 100, // limit each IP to 100 requests per windowMs
-        // });
-        // this.app.use(limiter);
+        // Rate limiting middleware
+        const limiter = rateLimit({
+            windowMs: 15 * 60 * 1000, // 15 minutes
+            max: 100, // limit each IP to 100 requests per windowMs
+        });
+        this.app.use(limiter);
         
-        // // API Key validation
-        // this.app.use(validateApiKey);
+        // API Key validation
+        this.app.use(validateApiKey);
         
-        // // Body parsing middleware
-        // this.app.use(express.json());
-        // this.app.use(express.urlencoded({ extended: true }));
+        // Body parsing middleware
+        this.app.use(express.json());
+        this.app.use(express.urlencoded({ extended: true }));
     }
 
     private configureRouters(routers: BaseRouter[]): void {

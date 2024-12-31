@@ -23,7 +23,7 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
   ) {}
 
   getHealth = async (req: Request, res: Response): Promise<void> => {
-    res.status(200).json({ status: "healthy", timestamp: new Date().toISOString() });
+    res.status(200).json({ status: "healthy", timestamp: new Date().toString() });
   };
 
   createCustomer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

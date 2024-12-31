@@ -4,11 +4,11 @@
   "description": "Motorbike shop customer management API with API Gateway",
   "main": "handler.js",
   "scripts": {
-    "dev": "serverless dev --stage dev",
-    "offline": "serverless offline",
+    "start": "npm run build && serverless offline start",
+    "dev": "tsc -w & serverless offline start",
     "build": "tsc",
-    "deploy:dev": "serverless deploy --stage dev",
-    "deploy:prod": "serverless deploy --stage prod",
+    "deploy:dev": "npm run build && serverless deploy --stage dev",
+    "deploy:prod": "npm run build && serverless deploy --stage prod",
     "test": "jest"
   },
   "dependencies": {

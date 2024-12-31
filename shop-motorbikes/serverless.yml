@@ -9,6 +9,7 @@ plugins:
   - serverless-dotenv-plugin
 
 custom:
+  tableName: customers-table-${self:provider.stage}
   apiGateway:
     apiKeys:
       - name: shop-motorbikes-api-key-${self:provider.stage}
@@ -27,26 +28,23 @@ custom:
     sourcemap: true
     exclude:
       - aws-sdk
-    target: node20
+    target: node18
     define:
       require.resolve: undefined
     platform: node
     concurrency: 10
+    watch:
+      pattern: 
+        - 'src/**/*.ts'
   serverless-offline:
     httpPort: 3000
     lambdaPort: 3002
     apiKey: test-api-key
     noPrependStageInUrl: true
-    resourceRoutes: true
-
-stages:
-  default:
-    params:
-      tableName: customers-table-${sls:stage}
 
 provider:
   name: aws
-  runtime: nodejs20.x
+  runtime: nodejs18.x
   stage: ${opt:stage, 'dev'}
   region: ${env:REGION, 'us-east-1'}
   apiGateway:
@@ -84,12 +82,12 @@ provider:
               - - !GetAtt CustomersTable.Arn
                 - index/*
   environment:
-    CUSTOMERS_TABLE: ${param:tableName}
+    CUSTOMERS_TABLE: ${self:custom.tableName}
     NODE_ENV: ${self:provider.stage}
 
 functions:
   api:
-    handler: src/handler.handler
+    handler: dist/handler.handler
     events:
       - http:
           path: /api/{proxy+}
@@ -109,11 +107,6 @@ functions:
             parameters:
               headers:
                 x-api-key: true
-      - http:
-          path: /{proxy+}
-          method: ANY
-          private: true
-          cors: true
 
 resources:
   Resources:
@@ -136,14 +129,14 @@ resources:
             Projection:
               ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
-        TableName: ${param:tableName}
+        TableName: ${self:custom.tableName}
 
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
       Properties:
         ResponseParameters:
-          gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
-          gatewayresponse.header.Access-Control-Allow-Headers: '''*'''
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
         ResponseType: DEFAULT_4XX
         RestApiId: !Ref ApiGatewayRestApi
 
@@ -151,87 +144,7 @@ resources:
       Type: AWS::ApiGateway::GatewayResponse
       Properties:
         ResponseParameters:
-          gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
-          gatewayresponse.header.Access-Control-Allow-Headers: '''*'''
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
         ResponseType: DEFAULT_5XX
         RestApiId: !Ref ApiGatewayRestApi
-# Transform: AWS::Serverless-2016-10-31
-# Resources:
-  # Api:
-  #   Type: AWS::Serverless::Api
-  #   Properties:
-  #     Name: !Sub
-  #       - ${ResourceName} From Stack ${AWS::StackName}
-  #       - ResourceName: Api
-  #     StageName: Prod
-  #     DefinitionBody:
-  #       openapi: '3.0'
-  #       info: {}
-  #       paths:
-  #         /customers:
-  #           get:
-  #             x-amazon-apigateway-integration:
-  #               httpMethod: POST
-  #               type: aws_proxy
-  #               uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
-  #             responses: {}
-  #         /customers/:id:
-  #           get:
-  #             x-amazon-apigateway-integration:
-  #               httpMethod: POST
-  #               type: aws_proxy
-  #               uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
-  #             responses: {}
-  #     EndpointConfiguration: REGIONAL
-  #     TracingEnabled: true
-  #     Cors:
-  #       MaxAge: 5
-  # Function:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     Description: !Sub
-  #       - Stack ${AWS::StackName} Function ${ResourceName}
-  #       - ResourceName: Function
-  #     CodeUri: src/Function
-  #     Handler: index.handler
-  #     Runtime: nodejs22.x
-  #     MemorySize: 3008
-  #     Timeout: 30
-  #     Tracing: Active
-  #     Environment:
-  #       Variables:
-  #         TABLE_TABLE_NAME: !Ref Table
-  #         TABLE_TABLE_ARN: !GetAtt Table.Arn
-  #     Policies:
-  #       - DynamoDBCrudPolicy:
-  #           TableName: !Ref Table
-  #     Events:
-  #       ApiGETcustomers:
-  #         Type: Api
-  #         Properties:
-  #           Path: /customers
-  #           Method: GET
-  #           RestApiId: !Ref Api
-  #       ApiGETcustomersid:
-  #         Type: Api
-  #         Properties:
-  #           Path: /customers/:id
-  #           Method: GET
-  #           RestApiId: !Ref Api
-  # FunctionLogGroup:
-  #   Type: AWS::Logs::LogGroup
-  #   DeletionPolicy: Retain
-  #   Properties:
-  #     LogGroupName: !Sub /aws/lambda/${Function}
-  # Table:
-  #   Type: AWS::DynamoDB::Table
-  #   Properties:
-  #     AttributeDefinitions:
-  #       - AttributeName: id
-  #         AttributeType: S
-  #     BillingMode: PAY_PER_REQUEST
-  #     KeySchema:
-  #       - AttributeName: id
-  #         KeyType: HASH
-  #     StreamSpecification:
-  #       StreamViewType: NEW_AND_OLD_IMAGES

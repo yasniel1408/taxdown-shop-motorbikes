@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
 import { DynamoDBCustomerAdapter } from "../adapters/out/dynamodb/DynamoDBCustomerAdapter";
-import { CustomerDatabasePort } from "../../domain/ports/out/CustomerDatabasePort";
 import { CreateCustomerService } from "../../application/CreateCustomerService";
 import { GetCustomerByIdService } from "../../application/GetCustomerByIdService";
 import { UpdateCustomerService } from "../../application/UpdateCustomerService";
@@ -11,8 +10,8 @@ import { GetAllCustomersService } from "../../application/GetAllCustomersService
 import { CustomerHttpControllerAdapter } from "../adapters/in/http/CustomerHttpControllerAdapter";
 
 // Register repository
-container.registerSingleton<CustomerDatabasePort<any>>(
-  "CustomerDatabasePort",
+container.registerSingleton<DynamoDBCustomerAdapter>(
+  "DynamoDBCustomerAdapter",
   DynamoDBCustomerAdapter
 );
 
@@ -25,6 +24,6 @@ container.registerSingleton<AddCreditToCustomerService>("AddCreditToCustomerServ
 container.registerSingleton<GetAllCustomersService>("GetAllCustomersService", GetAllCustomersService);
 
 // Register controller
-container.registerSingleton<CustomerHttpControllerAdapter>("CustomerHttpControllerAdapter", CustomerHttpControllerAdapter);
+container.registerSingleton<CustomerHttpControllerAdapter>("CustomerInputPort", CustomerHttpControllerAdapter);
 
 export { container };

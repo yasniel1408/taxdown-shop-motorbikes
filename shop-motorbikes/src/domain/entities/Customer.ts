@@ -46,7 +46,7 @@ export class Customer {
       email: this._email,
       phone: this._phone,
       availableCredit: this._credit.value,
-      createdAt: this._createdAt.toISOString()
+      createdAt: this._createdAt.toString()
     };
   }
 }

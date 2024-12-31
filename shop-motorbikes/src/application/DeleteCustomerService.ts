@@ -1,11 +1,11 @@
-import { inject } from 'tsyringe';
-import { CustomerDatabasePort } from '../domain/ports/out/CustomerDatabasePort';
-import { CustomerDao } from '../infrastructure/adapters/out/dynamodb/dao/CustomerDao';
+import { inject, injectable } from 'tsyringe';
+import { DynamoDBCustomerAdapter } from '../infrastructure/adapters/out/dynamodb/DynamoDBCustomerAdapter';
 
+@injectable()
 export class DeleteCustomerService {
   constructor(
-    @inject("CustomerDatabasePort")
-    private readonly customerdb: CustomerDatabasePort<CustomerDao>
+    @inject("DynamoDBCustomerAdapter")
+    private readonly customerdb: DynamoDBCustomerAdapter
 ) {}
 
   async execute(customerId: string): Promise<void> {

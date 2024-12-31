@@ -1,12 +1,13 @@
-import { inject } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { CustomerDtoRequest } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoRequest';
 import { CustomerDao } from '../infrastructure/adapters/out/dynamodb/dao/CustomerDao';
-import { CustomerDatabasePort } from '../domain/ports/out/CustomerDatabasePort';
+import { DynamoDBCustomerAdapter } from '../infrastructure/adapters/out/dynamodb/DynamoDBCustomerAdapter';
 
+@injectable()
 export class GetCustomerByIdService {
   constructor(
-    @inject("CustomerDatabasePort")
-    private readonly customerdb: CustomerDatabasePort<CustomerDao>
+    @inject("DynamoDBCustomerAdapter")
+    private readonly customerdb: DynamoDBCustomerAdapter
 ) {}
 
   async execute(customerId: string): Promise<CustomerDtoRequest> {
@@ -30,7 +31,7 @@ export class GetCustomerByIdService {
       email: customerDao.email,
       phone: customerDao.phone,
       availableCredit: customerDao.availableCredit,
-      createdAt: customerDao.createdAt.toISOString()
+      createdAt: customerDao.createdAt.toString()
     };
   }
 }

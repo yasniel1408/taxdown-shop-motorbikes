@@ -9,7 +9,9 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { CustomerDao } from "./dao/CustomerDao";
 import { CustomerDatabasePort } from "../../../../domain/ports/out/CustomerDatabasePort";
+import { injectable } from "tsyringe";
 
+@injectable()
 export class DynamoDBCustomerAdapter implements CustomerDatabasePort<CustomerDao> {
   private readonly docClient: DynamoDBDocumentClient;
   private readonly tableName: string;

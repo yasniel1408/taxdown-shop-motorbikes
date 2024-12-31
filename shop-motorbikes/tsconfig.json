@@ -4,14 +4,15 @@
     "module": "commonjs",
     "lib": ["es2020"],
     "strict": true,
-    "rootDir": "./",
-    "outDir": ".build",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"],
   "exclude": [
@@ -19,6 +20,7 @@
     ".serverless/**/*",
     ".webpack/**/*",
     "_warmup/**/*",
-    ".vscode/**/*"
+    ".vscode/**/*",
+    "dist/**/*"
   ]
 }
