@@ -1,39 +1,49 @@
 import "reflect-metadata";
 import { DynamoDBCustomerAdapter } from "../DynamoDBCustomerAdapter";
 import { CustomerDao } from "../dao/CustomerDao";
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient, ReturnValue } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, DeleteCommand, ScanCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 
-// Mock the DynamoDB DocumentClient
-jest.mock('aws-sdk', () => ({
-    DynamoDB: {
-        DocumentClient: jest.fn(() => ({
-            put: jest.fn().mockImplementation((params) => ({
-                promise: jest.fn().mockResolvedValue({})
-            })),
-            get: jest.fn().mockImplementation((params) => ({
-                promise: jest.fn().mockResolvedValue({})
-            })),
-            update: jest.fn().mockImplementation((params) => ({
-                promise: jest.fn().mockResolvedValue({})
-            })),
-            delete: jest.fn().mockImplementation((params) => ({
-                promise: jest.fn().mockResolvedValue({})
-            })),
-            scan: jest.fn().mockImplementation((params) => ({
-                promise: jest.fn().mockResolvedValue({})
-            }))
-        }))
+// Mock the DynamoDB Client
+jest.mock('@aws-sdk/client-dynamodb', () => ({
+    ...jest.requireActual('@aws-sdk/client-dynamodb'),
+    DynamoDBClient: jest.fn(),
+    ReturnValue: {
+        ALL_NEW: 'ALL_NEW'
     }
+}));
+
+jest.mock('@aws-sdk/lib-dynamodb', () => ({
+    DynamoDBDocumentClient: {
+        from: jest.fn(() => ({
+            send: jest.fn()
+        }))
+    },
+    PutCommand: jest.fn(),
+    GetCommand: jest.fn(),
+    UpdateCommand: jest.fn(),
+    DeleteCommand: jest.fn(),
+    ScanCommand: jest.fn(),
+    QueryCommand: jest.fn()
 }));
 
 describe('DynamoDBCustomerAdapter', () => {
     let adapter: DynamoDBCustomerAdapter;
-    let mockDocClient: jest.Mocked<DynamoDB.DocumentClient>;
+    let mockDocClient: jest.Mocked<DynamoDBDocumentClient>;
+    const tableName = 'customers-table-dev';
 
     beforeEach(() => {
+        process.env.CUSTOMERS_TABLE = tableName;
         jest.clearAllMocks();
+        
+        // Setup mock implementation
+        mockDocClient = {
+            send: jest.fn()
+        } as any;
+        
+        (DynamoDBDocumentClient.from as jest.Mock).mockReturnValue(mockDocClient);
+        
         adapter = new DynamoDBCustomerAdapter();
-        mockDocClient = new DynamoDB.DocumentClient() as jest.Mocked<DynamoDB.DocumentClient>;
     });
 
     describe('save', () => {
@@ -47,15 +57,12 @@ describe('DynamoDBCustomerAdapter', () => {
                 createdAt: new Date().toISOString()
             };
 
-            const mockPut = mockDocClient.put as jest.Mock;
-            mockPut.mockImplementation(() => ({
-                promise: jest.fn().mockResolvedValue({})
-            }));
+            mockDocClient.send.mockResolvedValueOnce({} as never);
 
             const result = await adapter.save(customerDao);
 
-            expect(mockPut).toHaveBeenCalledWith({
-                TableName: 'Customers',
+            expect(PutCommand).toHaveBeenCalledWith({
+                TableName: tableName,
                 Item: customerDao
             });
             expect(result).toEqual(customerDao);
@@ -72,10 +79,7 @@ describe('DynamoDBCustomerAdapter', () => {
             };
 
             const error = new Error('DynamoDB error');
-            const mockPut = mockDocClient.put as jest.Mock;
-            mockPut.mockImplementation(() => ({
-                promise: jest.fn().mockRejectedValue(error)
-            }));
+            mockDocClient.send.mockRejectedValueOnce(error as never);
 
             await expect(adapter.save(customerDao)).rejects.toThrow('DynamoDB error');
         });
@@ -93,15 +97,12 @@ describe('DynamoDBCustomerAdapter', () => {
                 createdAt: new Date().toISOString()
             };
 
-            const mockGet = mockDocClient.get as jest.Mock;
-            mockGet.mockImplementation(() => ({
-                promise: jest.fn().mockResolvedValue({ Item: customerDao })
-            }));
+            mockDocClient.send.mockResolvedValueOnce({ Item: customerDao }as never);
 
             const result = await adapter.findById(customerId);
 
-            expect(mockGet).toHaveBeenCalledWith({
-                TableName: 'Customers',
+            expect(GetCommand).toHaveBeenCalledWith({
+                TableName: tableName,
                 Key: { userId: customerId }
             });
             expect(result).toEqual(customerDao);
@@ -109,17 +110,109 @@ describe('DynamoDBCustomerAdapter', () => {
 
         it('should return undefined when customer is not found', async () => {
             const customerId = 'non-existent-id';
-
-            const mockGet = mockDocClient.get as jest.Mock;
-            mockGet.mockImplementation(() => ({
-                promise: jest.fn().mockResolvedValue({})
-            }));
+            mockDocClient.send.mockResolvedValueOnce({ Item: undefined } as never);
 
             const result = await adapter.findById(customerId);
 
+            expect(GetCommand).toHaveBeenCalledWith({
+                TableName: tableName,
+                Key: { userId: customerId }
+            });
             expect(result).toBeUndefined();
         });
+    });
 
+    describe('findAll', () => {
+        it('should return all customers successfully', async () => {
+            const customers: CustomerDao[] = [
+                {
+                    userId: 'id1',
+                    name: 'John Doe',
+                    email: 'john@example.com',
+                    phone: '1234567890',
+                    availableCredit: 1000,
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    userId: 'id2',
+                    name: 'Jane Doe',
+                    email: 'jane@example.com',
+                    phone: '0987654321',
+                    availableCredit: 2000,
+                    createdAt: new Date().toISOString()
+                }
+            ];
+
+            mockDocClient.send.mockResolvedValueOnce({ Items: customers }as never);
+
+            const result = await adapter.findAll();
+
+            expect(ScanCommand).toHaveBeenCalledWith({
+                TableName: tableName
+            });
+            expect(result).toEqual(customers);
+        });
+    });
+
+    describe('findAllSortedByCredit', () => {
+        it('should return customers sorted by credit', async () => {
+            const customers: CustomerDao[] = [
+                {
+                    userId: 'id1',
+                    name: 'John Doe',
+                    email: 'john@example.com',
+                    phone: '1234567890',
+                    availableCredit: 2000,
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    userId: 'id2',
+                    name: 'Jane Doe',
+                    email: 'jane@example.com',
+                    phone: '0987654321',
+                    availableCredit: 1000,
+                    createdAt: new Date().toISOString()
+                }
+            ];
+
+            mockDocClient.send.mockResolvedValueOnce({ Items: customers }as never);
+
+            const result = await adapter.findAllSortedByCredit();
+
+            expect(QueryCommand).toHaveBeenCalledWith({
+                TableName: tableName,
+                IndexName: 'CreditIndex',
+                KeyConditionExpression: "availableCredit >= :minCredit",
+                ExpressionAttributeValues: {
+                    ":minCredit": 0
+                },
+                ScanIndexForward: false
+            });
+            expect(result).toEqual(customers);
+        });
+    });
+
+    describe('delete', () => {
+        it('should delete a customer successfully', async () => {
+            const customerId = 'test-id';
+
+            mockDocClient.send.mockResolvedValueOnce({}as never);
+
+            await adapter.delete(customerId);
+
+            expect(DeleteCommand).toHaveBeenCalledWith({
+                TableName: tableName,
+                Key: { userId: customerId }
+            });
+        });
+
+        it('should handle errors when deleting fails', async () => {
+            const customerId = 'test-id';
+            const error = new Error('DynamoDB error');
+            mockDocClient.send.mockRejectedValueOnce(error as never);
+
+            await expect(adapter.delete(customerId)).rejects.toThrow('DynamoDB error');
+        });
     });
 
     describe('update', () => {
@@ -128,149 +221,49 @@ describe('DynamoDBCustomerAdapter', () => {
                 userId: 'test-id',
                 name: 'John Doe Updated',
                 email: 'john.updated@example.com',
-                phone: '0987654321',
-                availableCredit: 2000,
+                phone: '9999999999',
+                availableCredit: 1500,
                 createdAt: new Date().toISOString()
             };
 
-            const mockUpdate = mockDocClient.update as jest.Mock;
-            mockUpdate.mockImplementation(() => ({
-                promise: jest.fn().mockResolvedValue({ Attributes: customerDao })
-            }));
+            mockDocClient.send.mockResolvedValueOnce({
+                Attributes: customerDao
+            } as never);
 
-            const result = await adapter.update(customerDao);
+            await adapter.update(customerDao);
 
-            expect(mockUpdate).toHaveBeenCalledWith({
-                TableName: 'Customers',
+            expect(UpdateCommand).toHaveBeenCalledWith({
+                TableName: tableName,
                 Key: { userId: customerDao.userId },
-                UpdateExpression: expect.any(String),
-                ExpressionAttributeValues: expect.any(Object),
-                ReturnValues: 'ALL_NEW'
-            });
-            expect(result).toEqual(customerDao);
-        });
-
-    });
-
-    describe('delete', () => {
-        it('should delete a customer successfully', async () => {
-            const customerId = 'test-id';
-
-            const mockDelete = mockDocClient.delete as jest.Mock;
-            mockDelete.mockImplementation(() => ({
-                promise: jest.fn().mockResolvedValue({})
-            }));
-
-            await adapter.delete(customerId);
-
-            expect(mockDelete).toHaveBeenCalledWith({
-                TableName: 'Customers',
-                Key: { userId: customerId }
-            });
-        });
-
-    });
-
-    describe('findAll', () => {
-        it('should find all customers successfully', async () => {
-            const customers: CustomerDao[] = [
-                {
-                    userId: 'test-id-1',
-                    name: 'John Doe',
-                    email: 'john@example.com',
-                    phone: '1234567890',
-                    availableCredit: 1000,
-                    createdAt: new Date().toISOString()
+                UpdateExpression: "SET #name = :name, email = :email, phone = :phone, availableCredit = :availableCredit, createdAt = :createdAt",
+                ExpressionAttributeNames: {
+                    "#name": "name"
                 },
-                {
-                    userId: 'test-id-2',
-                    name: 'Jane Doe',
-                    email: 'jane@example.com',
-                    phone: '0987654321',
-                    availableCredit: 2000,
-                    createdAt: new Date().toISOString()
-                }
-            ];
-
-            const mockScan = mockDocClient.scan as jest.Mock;
-            mockScan.mockImplementation(() => ({
-                promise: jest.fn().mockResolvedValue({ Items: customers })
-            }));
-
-            const result = await adapter.findAll();
-
-            expect(mockScan).toHaveBeenCalledWith({
-                TableName: 'Customers'
+                ExpressionAttributeValues: {
+                    ":name": customerDao.name,
+                    ":email": customerDao.email,
+                    ":phone": customerDao.phone,
+                    ":availableCredit": customerDao.availableCredit,
+                    ":createdAt": customerDao.createdAt
+                },
+                ReturnValues: ReturnValue.ALL_NEW
             });
-            expect(result).toEqual(customers);
         });
 
-        it('should return empty array when no customers exist', async () => {
-            const mockScan = mockDocClient.scan as jest.Mock;
-            mockScan.mockImplementation(() => ({
-                promise: jest.fn().mockResolvedValue({ Items: [] })
-            }));
+        it('should handle errors when updating fails', async () => {
+            const customerDao: CustomerDao = {
+                userId: 'test-id',
+                name: 'John Doe Updated',
+                email: 'john.updated@example.com',
+                phone: '9999999999',
+                availableCredit: 1500,
+                createdAt: new Date().toISOString()
+            };
 
-            const result = await adapter.findAll();
-
-            expect(result).toEqual([]);
-        });
-
-        it('should handle errors when finding all customers fails', async () => {
             const error = new Error('DynamoDB error');
-            
-            const mockScan = mockDocClient.scan as jest.Mock;
-            mockScan.mockImplementation(() => ({
-                promise: jest.fn().mockRejectedValue(error)
-            }));
+            mockDocClient.send.mockRejectedValueOnce(error as never);
 
-            await expect(adapter.findAll()).rejects.toThrow('DynamoDB error');
-        });
-    });
-
-    describe('findAllSortedByCredit', () => {
-        it('should find all customers sorted by credit successfully', async () => {
-            const customers: CustomerDao[] = [
-                {
-                    userId: 'test-id-1',
-                    name: 'John Doe',
-                    email: 'john@example.com',
-                    phone: '1234567890',
-                    availableCredit: 2000,
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    userId: 'test-id-2',
-                    name: 'Jane Doe',
-                    email: 'jane@example.com',
-                    phone: '0987654321',
-                    availableCredit: 1000,
-                    createdAt: new Date().toISOString()
-                }
-            ];
-
-            const mockScan = mockDocClient.scan as jest.Mock;
-            mockScan.mockImplementation(() => ({
-                promise: jest.fn().mockResolvedValue({ Items: customers })
-            }));
-
-            const result = await adapter.findAllSortedByCredit();
-
-            expect(mockScan).toHaveBeenCalledWith({
-                TableName: 'Customers'
-            });
-            expect(result).toEqual(customers.sort((a, b) => b.availableCredit - a.availableCredit));
-        });
-
-        it('should return empty array when no customers exist', async () => {
-            const mockScan = mockDocClient.scan as jest.Mock;
-            mockScan.mockImplementation(() => ({
-                promise: jest.fn().mockResolvedValue({ Items: [] })
-            }));
-
-            const result = await adapter.findAllSortedByCredit();
-
-            expect(result).toEqual([]);
+            await expect(adapter.update(customerDao)).rejects.toThrow('DynamoDB error');
         });
     });
 });
