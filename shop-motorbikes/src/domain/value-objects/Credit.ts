@@ -1,5 +1,5 @@
 export class Credit {
-  private readonly _amount: number;
+  private _amount: number;
 
   public constructor(amount: number) {
     if (amount < 0) {
@@ -8,8 +8,8 @@ export class Credit {
     this._amount = amount;
   }
 
-  public add(amount: number): Credit {
-    return new Credit(this._amount + amount);
+  public add(amount: number) {
+    this._amount = this._amount + amount;
   }
 
   public get value(): number {

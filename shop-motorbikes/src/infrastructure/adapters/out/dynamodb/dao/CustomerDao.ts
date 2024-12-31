@@ -4,5 +4,5 @@ export interface CustomerDao {
   email: string;
   phone: string | undefined;
   availableCredit: number;
-  createdAt: Date;
+  createdAt: string;
 }

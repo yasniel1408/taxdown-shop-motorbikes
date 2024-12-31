@@ -13,7 +13,7 @@ export class AddCreditToCustomerService {
   async execute(customerId: string, amount: number): Promise<CustomerDtoRequest> {
     const customerDao = await this.customerdb.findById(customerId);
     if (!customerDao) {
-      throw new Error('Customer not found');
+      throw new Error('CUSTOMER_NOT_FOUND');
     }
 
     const customerDomain = CustomerFactory.create(
@@ -23,6 +23,7 @@ export class AddCreditToCustomerService {
       customerDao.availableCredit
     );
     customerDomain.addCredit(amount);
+    customerDomain.id = customerDao.userId;
 
     const customerUpdated = await this.customerdb.update({
       userId: customerDomain.id,
@@ -39,7 +40,7 @@ export class AddCreditToCustomerService {
       email: customerUpdated.email,
       phone: customerUpdated.phone,
       availableCredit: customerUpdated.availableCredit,
-      createdAt: customerUpdated.createdAt.toString()
+      createdAt: customerUpdated.createdAt
     };
   }
 }

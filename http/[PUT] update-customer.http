@@ -1,15 +1,13 @@
 ### Update Customer
-@customerId = customer123
+@customerId = a2b0190f-787f-49e5-bfba-5b4943ff3480
 
-PUT {{baseUrl}}/{{environment}}/api/customers/{{customerId}}
+PUT {{baseUrl}}/api/customers/{{customerId}}
 x-api-key: {{apiKey}}
 Content-Type: application/json
 
 {
-  "name": "John Doe Updated",
+  "name": "John Doe Updated2",
   "email": "john.updated@example.com",
   "phone": "+1987654321",
   "availableCredit": 2000
 }
-
-### Replace {{customerId}} with an actual customer ID

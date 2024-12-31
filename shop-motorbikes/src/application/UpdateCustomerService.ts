@@ -13,7 +13,7 @@ export class UpdateCustomerService {
   async execute(customerId: string, customerData: UpdateCustomerDtoResponse): Promise<CustomerDtoRequest> {
     const existingCustomer = await this.customerdb.findById(customerId);
     if (!existingCustomer) {
-      throw new Error('Customer not found');
+      throw new Error('CUSTOMER_NOT_FOUND');
     }
 
     const updatedCustomer = {
@@ -29,7 +29,7 @@ export class UpdateCustomerService {
       email: updatedCustomerDao.email,
       phone: updatedCustomerDao.phone,
       availableCredit: updatedCustomerDao.availableCredit,
-      createdAt: updatedCustomerDao.createdAt.toString()
+      createdAt: updatedCustomerDao.createdAt
     };
   }
 }

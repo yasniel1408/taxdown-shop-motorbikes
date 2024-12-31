@@ -1,8 +1,6 @@
 ### Get Customer by ID
-@customerId = customer1234
+@customerId=a2b0190f-787f-49e5-bfba-5b4943ff3480
 
-GET {{baseUrl}}/{{environment}}/api/customers/{{customerId}}
+GET {{baseUrl}}/api/customers/{{customerId}}
 x-api-key: {{apiKey}}
 Content-Type: application/json
-
-### Replace {{customerId}} with an actual customer ID

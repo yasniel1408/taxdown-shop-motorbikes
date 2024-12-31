@@ -18,7 +18,7 @@ export class GetAllCustomersService  {
       email: customer.email,
       phone: customer.phone,
       availableCredit: customer.availableCredit,
-      createdAt: customer.createdAt.toString()
+      createdAt: customer.createdAt
     }));
   }
 }

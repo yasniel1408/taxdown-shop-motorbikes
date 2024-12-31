@@ -4,8 +4,10 @@
   "description": "Motorbike shop customer management API with API Gateway",
   "main": "handler.js",
   "scripts": {
-    "start": "npm run build && serverless offline start",
-    "dev": "tsc -w & serverless offline start",
+    "start:db": "docker-compose up -d",
+    "create:table": "node scripts/create-local-table.js",
+    "offline": "npm run build && serverless offline --stage dev",
+    "dev": "npm run start:db && npm run create:table && npm run dev --stage dev",
     "build": "tsc",
     "deploy:dev": "npm run build && serverless deploy --stage dev",
     "deploy:prod": "npm run build && serverless deploy --stage prod",
@@ -20,7 +22,8 @@
     "helmet": "^8.0.0",
     "reflect-metadata": "^0.2.2",
     "serverless-http": "^3.2.0",
-    "tsyringe": "^4.8.0"
+    "tsyringe": "^4.8.0",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.146",
@@ -29,6 +32,7 @@
     "@types/node": "^22.10.2",
     "jest": "^29.7.0",
     "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-dynamodb-local": "^0.2.40",
     "serverless-offline": "^13.3.2",
     "typescript": "^5.7.2"
   }

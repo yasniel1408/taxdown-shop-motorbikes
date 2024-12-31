@@ -13,7 +13,7 @@ export class CustomerFactory {
           email,
           phone,
           new Credit(initialCredit),
-          new Date()
+          new Date().toString()
         );
       }
 }

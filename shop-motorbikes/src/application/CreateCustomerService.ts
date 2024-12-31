@@ -35,7 +35,7 @@ export class CreateCustomerService {
             email: customerCreated.email,
             phone: customerCreated.phone,
             availableCredit: customerCreated.availableCredit,
-            createdAt: customerCreated.createdAt.toString()
+            createdAt: customerCreated.createdAt
         };
     }
 }

@@ -1,18 +1,19 @@
 import { Credit } from '../value-objects/Credit';
+import { v4 as uuidv4 } from 'uuid';
 
 export class Customer {
-  private readonly _id = crypto.randomUUID();
+  private _id = uuidv4();
 
   constructor(
     private readonly _name: string,
     private readonly _email: string,
     private readonly _phone: string | undefined,
     private _credit: Credit,
-    private readonly _createdAt: Date
+    private readonly _createdAt: string
   ) {}
 
   public addCredit(amount: number): void {
-    this._credit = this._credit.add(amount);
+    this._credit.add(amount);
   }
 
   public get id(): string {
@@ -35,8 +36,12 @@ export class Customer {
     return this._credit.value;
   }
 
-  public get createdAt(): Date {
+  public get createdAt(): string {
     return this._createdAt;
+  }
+
+  public set id(id: string) {
+    this._id = id;
   }
 
   public toJSON() {
@@ -46,7 +51,7 @@ export class Customer {
       email: this._email,
       phone: this._phone,
       availableCredit: this._credit.value,
-      createdAt: this._createdAt.toString()
+      createdAt: this._createdAt
     };
   }
 }

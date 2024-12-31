@@ -38,8 +38,8 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
 
   getCustomerById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params;
-      const customer = await this.getCustomerByIdService.execute(id);
+      const { userId } = req.params;
+      const customer = await this.getCustomerByIdService.execute(userId);
       res.status(200).json(customer);
     } catch (error) {
       next(error);
@@ -48,9 +48,9 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
 
   updateCustomer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params;
+      const { userId } = req.params;
       const dto: UpdateCustomerDtoResponse = req.body;
-      const customer = await this.updateCustomerService.execute(id, dto);
+      const customer = await this.updateCustomerService.execute(userId, dto);
       res.status(200).json(customer);
     } catch (error) {
       next(error);
@@ -59,8 +59,8 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
 
   deleteCustomer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params;
-      await this.deleteCustomerService.execute(id);
+      const { userId } = req.params;
+      await this.deleteCustomerService.execute(userId);
       res.status(204).end();
     } catch (error) {
       next(error);
@@ -69,9 +69,9 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
 
   addCredit = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params;
+      const { userId } = req.params;
       const dto: AddCreditDtoResponse = req.body;
-      const customer = await this.addCreditToCustomerService.execute(id, dto.amount);
+      const customer = await this.addCreditToCustomerService.execute(userId, dto.amount);
       res.status(200).json(customer);
     } catch (error) {
       next(error);

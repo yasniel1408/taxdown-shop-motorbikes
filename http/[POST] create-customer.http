@@ -1,5 +1,5 @@
 ### Create Customer
-POST {{baseUrl}}/{{environment}}/api/customers
+POST {{baseUrl}}/api/customers
 x-api-key: {{apiKey}}
 Content-Type: application/json
 

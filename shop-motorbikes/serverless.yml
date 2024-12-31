@@ -7,6 +7,7 @@ useDotenv: true
 plugins:
   - serverless-offline
   - serverless-dotenv-plugin
+  - serverless-dynamodb-local
 
 custom:
   tableName: customers-table-${self:provider.stage}
@@ -33,14 +34,23 @@ custom:
       require.resolve: undefined
     platform: node
     concurrency: 10
-    watch:
-      pattern: 
-        - 'src/**/*.ts'
   serverless-offline:
     httpPort: 3000
     lambdaPort: 3002
-    apiKey: test-api-key
+    apiKey: d41d8cd98f00b204e9800998ecf8427e
     noPrependStageInUrl: true
+    useChildProcesses: true
+    stages:
+      - dev
+    host: localhost
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
 
 provider:
   name: aws

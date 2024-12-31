@@ -1,7 +1,7 @@
 ### Add Credit to Customer
-@customerId = customer1234
+@customerId = a2b0190f-787f-49e5-bfba-5b4943ff3480
 
-POST {{baseUrl}}/{{environment}}/api/customers/{{customerId}}/credit
+POST {{baseUrl}}/api/customers/{{customerId}}/credit
 x-api-key: {{apiKey}}
 Content-Type: application/json
 

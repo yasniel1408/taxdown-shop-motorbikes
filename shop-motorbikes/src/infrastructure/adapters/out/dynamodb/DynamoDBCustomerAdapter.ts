@@ -17,9 +17,21 @@ export class DynamoDBCustomerAdapter implements CustomerDatabasePort<CustomerDao
   private readonly tableName: string;
 
   constructor() {
-    const client = new DynamoDBClient();
+    const isDev = process.env.NODE_ENV === 'development' || process.env.IS_OFFLINE;
+    
+    const client = new DynamoDBClient(isDev ? {
+      region: 'localhost',
+      endpoint: 'http://localhost:8000',
+      credentials: {
+        accessKeyId: 'dummy',
+        secretAccessKey: 'dummy'
+      }
+    } : {
+      region: process.env.REGION
+    });
+
     this.docClient = DynamoDBDocumentClient.from(client);
-    this.tableName = process.env.CUSTOMERS_TABLE as string;
+    this.tableName = process.env.CUSTOMERS_TABLE || 'customers-table-dev';
   }
 
   async save(customer: CustomerDao) {
@@ -60,20 +72,22 @@ export class DynamoDBCustomerAdapter implements CustomerDatabasePort<CustomerDao
     const params = {
       TableName: this.tableName,
       Key: {
-        userId: customer.userId,
+        userId: customer.userId
       },
-      UpdateExpression: "set #name = :name, email = :email, phone = :phone, availableCredit = :availableCredit",
+      UpdateExpression: "SET #name = :name, email = :email, phone = :phone, availableCredit = :availableCredit, createdAt = :createdAt",
       ExpressionAttributeNames: {
-        "#name": "name",
+        "#name": "name"
       },
       ExpressionAttributeValues: {
-        ":name": customer?.name,
-        ":email": customer?.email,
-        ":phone": customer?.phone,
-        ":availableCredit": customer?.availableCredit,
-      },  
+        ":name": customer.name,
+        ":email": customer.email,
+        ":phone": customer.phone || null,
+        ":availableCredit": customer.availableCredit,
+        ":createdAt": customer.createdAt
+      },
       ReturnValues: ReturnValue.ALL_NEW,
     };
+
     const result = await this.docClient.send(new UpdateCommand(params));
     return result.Attributes as CustomerDao;
   }
