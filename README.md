@@ -118,7 +118,7 @@ src/
 
 ## Environment Variables
 
-- `USERS_TABLE`: DynamoDB table name (automatically set during deployment)
+- `CUSTOMERS_TABLE`: DynamoDB table name (automatically set during deployment)
 - `NODE_ENV`: Environment name ('development' or 'production')
 
 ## Security Features

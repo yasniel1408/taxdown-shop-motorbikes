@@ -7,87 +7,72 @@ import {
   DeleteCommand,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { Customer } from "../../../../domain/entities/Customer";
-import { CustomerRepository } from "../../../../domain/ports/out/CustomerRepository";
+import { CustomerDao } from "./dao/CustomerDao";
+import { CustomerDatabasePort } from "../../../../domain/ports/out/CustomerDatabasePort";
 
-export class DynamoDBCustomerRepository implements CustomerRepository {
+export class DynamoDBCustomerAdapter implements CustomerDatabasePort<CustomerDao> {
   private readonly docClient: DynamoDBDocumentClient;
   private readonly tableName: string;
 
   constructor() {
     const client = new DynamoDBClient();
     this.docClient = DynamoDBDocumentClient.from(client);
-    this.tableName = process.env.USERS_TABLE as string;
+    this.tableName = process.env.CUSTOMERS_TABLE as string;
   }
 
-  private toDomain(record: any): Customer {
-    return Customer.create(
-      record.userId,
-      record.name,
-      record.email,
-      record.phone,
-      record.availableCredit
-    );
-  }
-
-  async save(customer: Customer): Promise<Customer> {
+  async save(customer: CustomerDao) {
     const params = {
       TableName: this.tableName,
-      Item: customer.toJSON(),
+      Item: customer,
     };
-
     await this.docClient.send(new PutCommand(params));
     return customer;
   }
 
-  async findById(userId: string): Promise<Customer | null> {
+  async findById(userId: string) {
     const params = {
       TableName: this.tableName,
       Key: { userId },
     };
-
     const result = await this.docClient.send(new GetCommand(params));
-    return result.Item ? this.toDomain(result.Item) : null;
+    return result.Item as CustomerDao;
   }
 
-  async findAll(): Promise<Customer[]> {
+  async findAll() {
     const params = {
       TableName: this.tableName,
     };
-
     const result = await this.docClient.send(new ScanCommand(params));
-    return (result.Items || []).map(item => this.toDomain(item));
+    return result.Items as CustomerDao[];
   }
 
-  async delete(userId: string): Promise<void> {
+  async delete(userId: string) {
     const params = {
       TableName: this.tableName,
       Key: { userId },
     };
-
     await this.docClient.send(new DeleteCommand(params));
   }
 
-  async update(customer: Customer): Promise<Customer> {
+  async update(customer: CustomerDao) {
     const params = {
       TableName: this.tableName,
       Key: {
-        userId: customer.id,
+        userId: customer.userId,
       },
       UpdateExpression: "set #name = :name, email = :email, phone = :phone, availableCredit = :availableCredit",
       ExpressionAttributeNames: {
         "#name": "name",
       },
       ExpressionAttributeValues: {
-        ":name": customer.name,
-        ":email": customer.email,
-        ":phone": customer.phone,
-        ":availableCredit": customer.credit,
-      },
+        ":name": customer?.name,
+        ":email": customer?.email,
+        ":phone": customer?.phone,
+        ":availableCredit": customer?.availableCredit,
+      },  
       ReturnValues: ReturnValue.ALL_NEW,
     };
-
     const result = await this.docClient.send(new UpdateCommand(params));
-    return this.toDomain(result.Attributes);
+    return result.Attributes as CustomerDao;
   }
 }

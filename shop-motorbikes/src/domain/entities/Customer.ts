@@ -1,31 +1,15 @@
 import { Credit } from '../value-objects/Credit';
 
 export class Customer {
+  private readonly _id = crypto.randomUUID();
+
   constructor(
-    private readonly _id: string,
     private readonly _name: string,
     private readonly _email: string,
     private readonly _phone: string | undefined,
     private _credit: Credit,
     private readonly _createdAt: Date
   ) {}
-
-  public static create(
-    id: string,
-    name: string,
-    email: string,
-    phone?: string,
-    initialCredit: number = 0
-  ): Customer {
-    return new Customer(
-      id,
-      name,
-      email,
-      phone,
-      Credit.create(initialCredit),
-      new Date()
-    );
-  }
 
   public addCredit(amount: number): void {
     this._credit = this._credit.add(amount);

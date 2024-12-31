@@ -21,7 +21,7 @@ custom:
       - NODE_ENV
       - STAGE
       - REGION
-      - USERS_TABLE
+      - CUSTOMERS_TABLE
     logging: true
   esbuild:
     bundle: true
@@ -86,7 +86,7 @@ provider:
               - - !GetAtt CustomersTable.Arn
                 - index/*
   environment:
-    USERS_TABLE: ${param:tableName}
+    CUSTOMERS_TABLE: ${param:tableName}
     NODE_ENV: ${self:provider.stage}
 
 functions:

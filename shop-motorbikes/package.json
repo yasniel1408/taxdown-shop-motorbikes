@@ -4,7 +4,7 @@
   "description": "Motorbike shop customer management API with API Gateway",
   "main": "handler.js",
   "scripts": {
-    "start": "npx serverless offline",
+    "start": "serverless offline",
     "build": "tsc",
     "deploy:dev": "serverless deploy --stage dev",
     "deploy:prod": "serverless deploy --stage prod",
