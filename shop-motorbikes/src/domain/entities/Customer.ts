@@ -13,7 +13,7 @@ export class Customer {
     private _credit: Credit,
     private readonly _createdAt: string
   ) {
-    if (!_name || !_email || !_phone) {
+    if (!_name || !_email) {
       throw new InvalidCustomerDataError('Name, email and phone are required');
     }
 
@@ -21,7 +21,7 @@ export class Customer {
       throw new InvalidCustomerDataError('Invalid email format');
     }
 
-    if (!this.isValidPhone(_phone)) {
+    if (!!this._phone && !this.isValidPhone(this._phone)) {
       throw new InvalidCustomerDataError('Invalid phone format');
     }
   }
