@@ -179,7 +179,7 @@ describe('DynamoDBCustomerAdapter', () => {
 
             const result = await adapter.findAllSortedByCredit();
 
-            expect(QueryCommand).toHaveBeenCalledWith({
+            expect(ScanCommand).toHaveBeenCalledWith({
                 TableName: tableName,
                 IndexName: 'CreditIndex',
                 ScanIndexForward: true
