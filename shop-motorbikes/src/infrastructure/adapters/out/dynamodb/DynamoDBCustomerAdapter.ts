@@ -65,15 +65,12 @@ export class DynamoDBCustomerAdapter implements CustomerDatabasePort<CustomerDao
     const params = {
       TableName: this.tableName,
       IndexName: 'CreditIndex',
-      KeyConditionExpression: "availableCredit >= :minCredit",
-      ExpressionAttributeValues: {
-        ":minCredit": 0
-      },
-      ScanIndexForward: false  // false = descending order (highest to lowest)
+      ScanIndexForward: true  // false = descending order (highest to lowest)
     };
 
-    const result = await this.docClient.send(new QueryCommand(params));
-    return result.Items as CustomerDao[];
+    const result = await this.docClient.send(new ScanCommand(params));
+    const items = result.Items as CustomerDao[];
+    return items;
   }
 
   async delete(userId: string) {

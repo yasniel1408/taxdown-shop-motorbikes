@@ -8,8 +8,8 @@ A serverless API for managing customers in a motorbike shop, built with AWS Lamb
 
 The project follows a clean architecture approach with three main layers:
 
-- **Domain Layer**: Contains business logic and entities
-- **Application Layer**: Contains use cases and ports
+- **Domain Layer**: Contains business logic, entities and ports
+- **Application Layer**: Contains use cases
 - **Infrastructure Layer**: Contains adapters for external services
 
 ### Architectural Patterns Used

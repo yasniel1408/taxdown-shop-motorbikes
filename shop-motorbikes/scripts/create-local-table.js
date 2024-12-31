@@ -23,7 +23,7 @@ const params = {
             IndexName: 'CreditIndex',
             KeySchema: [
                 { AttributeName: 'availableCredit', KeyType: 'HASH' }
-            ],
+              ],
             Projection: {
                 ProjectionType: 'ALL'
             },
