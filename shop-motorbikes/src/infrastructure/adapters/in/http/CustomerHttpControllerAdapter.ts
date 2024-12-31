@@ -9,15 +9,17 @@ import { UpdateCustomerService } from '../../../../application/UpdateCustomerSer
 import { DeleteCustomerService } from '../../../../application/DeleteCustomerService';
 import { AddCreditToCustomerService } from '../../../../application/AddCreditToCustomerService';
 import { GetAllCustomersService } from '../../../../application/GetAllCustomersService';
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class CustomerHttpControllerAdapter implements CustomerInputPort<Request, Response, NextFunction> {
   constructor(
-    private readonly createCustomerService: CreateCustomerService,
-    private readonly getCustomerByIdService: GetCustomerByIdService,
-    private readonly updateCustomerService: UpdateCustomerService,
-    private readonly deleteCustomerService: DeleteCustomerService,
-    private readonly addCreditService: AddCreditToCustomerService,
-    private readonly getAllCustomersService: GetAllCustomersService
+    @inject("CreateCustomerService") private readonly createCustomerService: CreateCustomerService,
+    @inject("GetCustomerByIdService") private readonly getCustomerByIdService: GetCustomerByIdService,
+    @inject("UpdateCustomerService") private readonly updateCustomerService: UpdateCustomerService,
+    @inject("DeleteCustomerService") private readonly deleteCustomerService: DeleteCustomerService,
+    @inject("AddCreditToCustomerService") private readonly addCreditToCustomerService: AddCreditToCustomerService,
+    @inject("GetAllCustomersService") private readonly getAllCustomersService: GetAllCustomersService
   ) {}
 
   getHealth = async (req: Request, res: Response): Promise<void> => {
@@ -69,7 +71,7 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
     try {
       const { id } = req.params;
       const dto: AddCreditDtoResponse = req.body;
-      const customer = await this.addCreditService.execute(id, dto.amount);
+      const customer = await this.addCreditToCustomerService.execute(id, dto.amount);
       res.status(200).json(customer);
     } catch (error) {
       next(error);

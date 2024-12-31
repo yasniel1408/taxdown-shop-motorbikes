@@ -1,46 +1,34 @@
-import express from 'express';
+import { container } from './container';
 import { CustomerHttpControllerAdapter } from '../adapters/in/http/CustomerHttpControllerAdapter';
-import { CreateCustomerService } from '../../application/CreateCustomerService';
-import { GetCustomerByIdService } from '../../application/GetCustomerByIdService';
-import { UpdateCustomerService } from '../../application/UpdateCustomerService';
-import { DeleteCustomerService } from '../../application/DeleteCustomerService';
-import { AddCreditToCustomerService } from '../../application/AddCreditToCustomerService';
-import { GetAllCustomersService } from '../../application/GetAllCustomersService';
-import { DynamoDBCustomerAdapter } from '../adapters/out/dynamodb/DynamoDBCustomerAdapter';
 import { Router } from 'express';
 import { BaseRouter } from './base/BaseRouter';
 
 export class CustomerRouter extends BaseRouter {
-    private customerController = new CustomerHttpControllerAdapter(
-        new CreateCustomerService(new DynamoDBCustomerAdapter()),
-        new GetCustomerByIdService(new DynamoDBCustomerAdapter()),
-        new UpdateCustomerService(new DynamoDBCustomerAdapter()),
-        new DeleteCustomerService(new DynamoDBCustomerAdapter()),
-        new AddCreditToCustomerService(new DynamoDBCustomerAdapter()),
-        new GetAllCustomersService(new DynamoDBCustomerAdapter())
-    );
+    private router: Router;
+    private customerController: CustomerHttpControllerAdapter;
 
     constructor() {
         super();
+        this.router = Router();
+        this.customerController = container.resolve(CustomerHttpControllerAdapter);
+        this.configureRoutes();
     }
 
     protected configureRoutes(): Router {
-        const router = Router();
-
-        router.get('/health', this.customerController.getHealth);
+        this.router.get('/health', this.customerController.getHealth);
         
-        router.route('/customers')
+        this.router.route('/customers')
             .get(this.customerController.getAllCustomers)
             .post(this.customerController.createCustomer);
 
-        router.route('/customers/:userId')
+        this.router.route('/customers/:userId')
             .get(this.customerController.getCustomerById)
             .put(this.customerController.updateCustomer)
             .delete(this.customerController.deleteCustomer);
 
-        router.post('/customers/:userId/credit', this.customerController.addCredit);
+        this.router.post('/customers/:userId/credit', this.customerController.addCredit);
 
-        return router;
+        return this.router;
     }
 
     public getRouter(): Router {

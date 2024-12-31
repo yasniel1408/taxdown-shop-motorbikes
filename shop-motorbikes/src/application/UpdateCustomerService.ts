@@ -1,9 +1,14 @@
 import { CustomerDtoRequest } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoRequest';
 import { UpdateCustomerDtoResponse } from '../infrastructure/adapters/in/http/dtos/request/UpdateCustomerDtoResponse';
-import { DynamoDBCustomerAdapter } from '../infrastructure/adapters/out/dynamodb/DynamoDBCustomerAdapter';
+import { inject } from 'tsyringe';
+import { CustomerDatabasePort } from '../domain/ports/out/CustomerDatabasePort';
+import { CustomerDao } from '../infrastructure/adapters/out/dynamodb/dao/CustomerDao';
 
 export class UpdateCustomerService {
-  constructor(private readonly customerdb: DynamoDBCustomerAdapter) {}
+  constructor(
+    @inject("CustomerDatabasePort")
+    private readonly customerdb: CustomerDatabasePort<CustomerDao>
+) {}
 
   async execute(customerId: string, customerData: UpdateCustomerDtoResponse): Promise<CustomerDtoRequest> {
     const existingCustomer = await this.customerdb.findById(customerId);

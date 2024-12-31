@@ -1,9 +1,13 @@
+import { inject } from 'tsyringe';
 import { CustomerDtoRequest } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoRequest';
 import { CustomerDao } from '../infrastructure/adapters/out/dynamodb/dao/CustomerDao';
-import { DynamoDBCustomerAdapter } from '../infrastructure/adapters/out/dynamodb/DynamoDBCustomerAdapter';
+import { CustomerDatabasePort } from '../domain/ports/out/CustomerDatabasePort';
 
 export class GetCustomerByIdService {
-  constructor(private readonly customerdb: DynamoDBCustomerAdapter) {}
+  constructor(
+    @inject("CustomerDatabasePort")
+    private readonly customerdb: CustomerDatabasePort<CustomerDao>
+) {}
 
   async execute(customerId: string): Promise<CustomerDtoRequest> {
     const customer = await this.customerdb.findById(customerId);
