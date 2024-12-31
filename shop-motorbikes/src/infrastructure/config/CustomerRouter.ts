@@ -15,6 +15,7 @@ export class CustomerRouter extends BaseRouter {
     }
 
     protected configureRoutes(): Router {
+        console.info('Configuring routes');
         this.router.get('/health', this.customerController.getHealth);
         
         this.router.route('/customers')
@@ -27,7 +28,7 @@ export class CustomerRouter extends BaseRouter {
             .delete(this.customerController.deleteCustomer);
 
         this.router.post('/customers/:userId/credit', this.customerController.addCredit);
-
+        console.info('Routes configured');
         return this.router;
     }
 

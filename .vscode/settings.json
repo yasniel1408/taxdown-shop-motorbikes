@@ -6,7 +6,8 @@
     },
     "local": {
       "baseUrl": "http://localhost:3000",
-      "apiKey": "test-api-key"
+      "apiKey": "test-api-key",
+      "environment": "dev"
     },
     "dev": {
       "baseUrl": "https://l9dgpocjjk.execute-api.us-east-1.amazonaws.com",
