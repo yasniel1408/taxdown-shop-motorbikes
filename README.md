@@ -34,6 +34,7 @@ The project follows a clean architecture approach with three main layers:
 
 ## Prerequisites
 
+- Docker (because we use DynamoDB Local for local development)
 - Node.js 18.x or later
 - Serverless Framework CLI (`npm install -g serverless`)
 - Visual Studio Code
@@ -55,15 +56,16 @@ npm install
 
 3. Deploy to AWS:
 ```bash
-serverless deploy
+npm run deploy:dev
 ```
-
-## Local Development
-
-To run the API locally:
+4. To run the API locally:
 
 ```bash
-npm run build && serverless offline --stage dev
+npm run dev
+```
+if you have some error run this command with serverless version 3 or 4
+```bash
+npm run start:db && npm run create:table && serverless dev --stage dev
 ```
 
 The API will be available at `http://localhost:3000`
