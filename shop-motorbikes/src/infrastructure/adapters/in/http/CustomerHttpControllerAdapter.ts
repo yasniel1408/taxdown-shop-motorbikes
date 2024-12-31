@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { CreateCustomerDtoResponse} from './dtos/request/CreateCustomerDtoResponse';
 import { CustomerInputPort } from '../../../../domain/ports/in/CustomerInputPort';
 import { CreateCustomerService } from '../../../../application/CreateCustomerService';
 import { GetCustomerByIdService } from '../../../../application/GetCustomerByIdService';
@@ -8,8 +7,9 @@ import { DeleteCustomerService } from '../../../../application/DeleteCustomerSer
 import { AddCreditToCustomerService } from '../../../../application/AddCreditToCustomerService';
 import { GetAllCustomersService } from '../../../../application/GetAllCustomersService';
 import { inject, injectable } from "tsyringe";
-import { AddCreditDtoResponse } from './dtos/request/AddCreditDtoResponse';
 import { UpdateCustomerDtoRequest } from './dtos/request/UpdateCustomerDtoRequest';
+import { AddCreditDtoRequest } from './dtos/request/AddCreditDtoRequest';
+import { CreateCustomerDtoRequest } from './dtos/request/CreateCustomerDtoRequest';
 
 @injectable()
 export class CustomerHttpControllerAdapter implements CustomerInputPort<Request, Response, NextFunction> {
@@ -28,7 +28,7 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
 
   createCustomer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const dto: CreateCustomerDtoResponse = req.body;
+      const dto: CreateCustomerDtoRequest = req.body;
       const customer = await this.createCustomerService.execute(dto);
       res.status(201).json(customer);
     } catch (error) {
@@ -70,7 +70,7 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
   addCredit = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { userId } = req.params;
-      const dto: AddCreditDtoResponse = req.body;
+      const dto: AddCreditDtoRequest = req.body;
       const customer = await this.addCreditToCustomerService.execute(userId, dto.amount);
       res.status(200).json(customer);
     } catch (error) {

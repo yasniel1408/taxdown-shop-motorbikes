@@ -5,6 +5,20 @@ module.exports = {
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.test.ts'],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': 'ts-jest'
   },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/src/infrastructure/config/',
+    '/src/handler.ts'
+  ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/src/infrastructure/config/',
+    '/src/handler.ts'
+  ],
+  setupFiles: ['reflect-metadata']
 };
