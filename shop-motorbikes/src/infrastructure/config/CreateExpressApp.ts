@@ -1,46 +1,62 @@
-import express from 'express';
+import express, { Application } from 'express';
 import cors from 'cors';
-import { rateLimit } from 'express-rate-limit';
-import { Request, Response } from 'express';
+import helmet from 'helmet';
 import { validateApiKey } from './validateApiKey';
 import { errorHandler } from './errorHandler';
+import { BaseRouter } from './base/BaseRouter';
+import rateLimit from 'express-rate-limit';
 
 export class CreateExpressApp {
-  private app: express.Application = express();
+    private readonly app: Application;
 
-  constructor(routes: any[]) {
-    // Middleware
-    this.app.use(cors());
-    this.app.use(express.json());
-  
-    // Rate limiting middleware
-    const limiter = rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 100
-    });
-    this.app.use(limiter);
-  
-    // API Key validation middleware
-    this.app.use(validateApiKey);
-  
-    // Routes
-    routes.forEach((route) => {
-      this.app.use(route);
-    });
-  
-    // Error handling middleware
-    this.app.use(errorHandler);
-  
-    // Handle 404
-    this.app.use((req: Request, res: Response): void => {
-      res.status(404).json({
-        error: "Not Found",
-        path: req.path
-      });
-    });
-  }
+    constructor(routers: BaseRouter[]) {
+        this.app = express();
+        this.configureMiddleware();
+        this.configureRouters(routers);
+        this.configureErrorHandling();
+        this.handle404();
+    }
 
-  getApp() {
-    return this.app;
-  }
-};
+    private configureMiddleware(): void {
+        // Security middleware
+        this.app.use(helmet());
+        this.app.use(cors());
+
+        // Rate limiting middleware
+        const limiter = rateLimit({
+            windowMs: 15 * 60 * 1000, // 15 minutes
+            max: 100, // limit each IP to 100 requests per windowMs
+        });
+        this.app.use(limiter);
+        
+        // API Key validation
+        this.app.use(validateApiKey);
+        
+        // Body parsing middleware
+        this.app.use(express.json());
+        this.app.use(express.urlencoded({ extended: true }));
+    }
+
+    private configureRouters(routers: BaseRouter[]): void {
+        routers.forEach(router => {
+            this.app.use('/api', router.getRouter());
+        });
+    }
+
+    private configureErrorHandling(): void {
+        this.app.use(errorHandler);
+    }
+
+    private handle404(): void {
+        this.app.use((req: express.Request, res: express.Response): void => {
+            res.status(404).json({
+                error: "Not Found",
+                path: req.path
+            });
+        });
+    }
+
+    public getApp(): Application {
+        return this.app;
+    }
+}

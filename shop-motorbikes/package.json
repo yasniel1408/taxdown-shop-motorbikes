@@ -4,7 +4,8 @@
   "description": "Motorbike shop customer management API with API Gateway",
   "main": "handler.js",
   "scripts": {
-    "start": "serverless offline",
+    "dev": "serverless dev --stage dev",
+    "offline": "serverless offline",
     "build": "tsc",
     "deploy:dev": "serverless deploy --stage dev",
     "deploy:prod": "serverless deploy --stage prod",
@@ -16,6 +17,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.1.5",
+    "helmet": "^8.0.0",
     "serverless-http": "^3.2.0"
   },
   "devDependencies": {
