@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
+import { BaseError } from '../../domain/errors/BaseError';
 
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
+export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction): void => {
     console.error(err.stack);
 
-    // if error status is 404
-    if (err.message === 'CUSTOMER_NOT_FOUND') {
-        res.status(404).json({
-            error: 'Not Found',
-            message: "Customer not found"
+    if (err instanceof BaseError) {
+        const error = err as BaseError;
+        res.status(error.status).json({
+            error: error.name,
+            message: error.message
         });
         return;
     }

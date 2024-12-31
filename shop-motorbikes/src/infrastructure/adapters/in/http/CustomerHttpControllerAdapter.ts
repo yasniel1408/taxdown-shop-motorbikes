@@ -80,7 +80,6 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
 
   getAllCustomers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      console.log(req.query);
       const sortByCredit = req.query.sortByCredit === 'true';
       const customers = await this.getAllCustomersService.execute(sortByCredit);
       res.status(200).json(customers);

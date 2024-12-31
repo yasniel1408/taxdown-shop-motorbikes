@@ -1,5 +1,7 @@
 import { Credit } from '../value-objects/Credit';
 import { v4 as uuidv4 } from 'uuid';
+import { CreditNotNegativeError } from '../errors/CreditNotNegativeError';
+import { InvalidCustomerDataError } from '../errors/InvalidCustomerDataError';
 
 export class Customer {
   private _id = uuidv4();
@@ -10,9 +12,34 @@ export class Customer {
     private readonly _phone: string | undefined,
     private _credit: Credit,
     private readonly _createdAt: string
-  ) {}
+  ) {
+    if (!_name || !_email || !_phone) {
+      throw new InvalidCustomerDataError('Name, email and phone are required');
+    }
+
+    if (!this.isValidEmail(_email)) {
+      throw new InvalidCustomerDataError('Invalid email format');
+    }
+
+    if (!this.isValidPhone(_phone)) {
+      throw new InvalidCustomerDataError('Invalid phone format');
+    }
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  private isValidPhone(phone: string): boolean {
+    const phoneRegex = /^\+?[\d\s-]{10,}$/;
+    return phoneRegex.test(phone);
+  }
 
   public addCredit(amount: number): void {
+    if (amount < 0) {
+      throw new CreditNotNegativeError();
+    }
     this._credit.add(amount);
   }
 

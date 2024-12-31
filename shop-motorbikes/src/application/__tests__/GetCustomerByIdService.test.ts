@@ -53,7 +53,7 @@ describe('GetCustomerByIdService', () => {
         // Act & Assert
         await expect(service.execute(customerId))
             .rejects
-            .toThrow('CUSTOMER_NOT_FOUND');
+            .toThrow('Customer not found');
         expect(mockCustomerDb.findById).toHaveBeenCalledWith(customerId);
     });
 });

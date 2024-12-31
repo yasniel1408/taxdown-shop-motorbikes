@@ -2,6 +2,8 @@ import { inject, injectable } from 'tsyringe';
 import { CustomerFactory } from '../domain/CustomerFactory';
 import { DynamoDBCustomerAdapter } from '../infrastructure/adapters/out/dynamodb/DynamoDBCustomerAdapter';
 import { CustomerDtoResponse } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoResponse';
+import { CustomerNotFoundError } from '../domain/errors/CustomerNotFoundError';
+import { CreditNotNegativeError } from '../domain/errors/CreditNotNegativeError';
 
 @injectable()
 export class AddCreditToCustomerService {
@@ -12,12 +14,12 @@ export class AddCreditToCustomerService {
 
   async execute(customerId: string, amount: number): Promise<CustomerDtoResponse> {
     if (amount < 0) {
-      throw new Error('Credit amount cannot be negative');
+      throw new CreditNotNegativeError();
     }
 
     const customerDao = await this.customerdb.findById(customerId);
     if (!customerDao) {
-      throw new Error('CUSTOMER_NOT_FOUND');
+      throw new CustomerNotFoundError();
     }
 
     const customerDomain = CustomerFactory.create(

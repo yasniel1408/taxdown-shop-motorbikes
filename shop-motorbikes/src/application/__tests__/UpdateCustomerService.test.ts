@@ -71,7 +71,7 @@ describe('UpdateCustomerService', () => {
         // Act & Assert
         await expect(service.execute(customerId, updateDto))
             .rejects
-            .toThrow('CUSTOMER_NOT_FOUND');
+            .toThrow('Customer not found');
         expect(mockCustomerDb.findById).toHaveBeenCalledWith(customerId);
         expect(mockCustomerDb.update).not.toHaveBeenCalled();
     });

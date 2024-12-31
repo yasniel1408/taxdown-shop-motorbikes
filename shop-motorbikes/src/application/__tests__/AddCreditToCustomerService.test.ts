@@ -56,7 +56,7 @@ describe('AddCreditToCustomerService', () => {
         // Act & Assert
         await expect(service.execute(customerId, 100))
             .rejects
-            .toThrow('CUSTOMER_NOT_FOUND');
+            .toThrow('Customer not found');
     });
 
     it('should throw error when trying to add negative credit', async () => {
