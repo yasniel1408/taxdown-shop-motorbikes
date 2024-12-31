@@ -65,10 +65,10 @@ export class DynamoDBCustomerAdapter implements CustomerDatabasePort<CustomerDao
     const params = {
       TableName: this.tableName,
       IndexName: 'CreditIndex',
-      ScanIndexForward: true  // false = descending order (highest to lowest)
+      ScanIndexForward: true  // true = ascending order (lowest to highest)
     };
 
-    const result = await this.docClient.send(new ScanCommand(params));
+    const result = await this.docClient.send(new QueryCommand(params));
     const items = result.Items as CustomerDao[];
     return items;
   }

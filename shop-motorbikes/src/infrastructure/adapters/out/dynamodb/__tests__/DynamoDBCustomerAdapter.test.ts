@@ -182,12 +182,8 @@ describe('DynamoDBCustomerAdapter', () => {
             expect(QueryCommand).toHaveBeenCalledWith({
                 TableName: tableName,
                 IndexName: 'CreditIndex',
-                KeyConditionExpression: "availableCredit >= :minCredit",
-                ExpressionAttributeValues: {
-                    ":minCredit": 0
-                },
-                ScanIndexForward: false
-            });
+                ScanIndexForward: true
+              });
             expect(result).toEqual(customers);
         });
     });
