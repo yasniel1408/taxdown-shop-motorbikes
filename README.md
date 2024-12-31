@@ -38,6 +38,7 @@ The project follows a clean architecture approach with three main layers:
 - Serverless Framework CLI (`npm install -g serverless`)
 - Visual Studio Code
     - [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
+![image](./doc/rest-http.png)
 
 ## Project Setup
 
@@ -62,7 +63,7 @@ serverless deploy
 To run the API locally:
 
 ```bash
-serverless offline
+npm run build && serverless offline --stage dev
 ```
 
 The API will be available at `http://localhost:3000`
@@ -120,10 +121,6 @@ src/
     └── config/         # Configuration
 ```
 
-## Environment Variables
-
-- `CUSTOMERS_TABLE`: DynamoDB table name (automatically set during deployment)
-- `NODE_ENV`: Environment name ('development' or 'production')
 
 ## Security Features
 
