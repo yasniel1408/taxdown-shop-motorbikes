@@ -88,6 +88,10 @@ The project includes `.http` files in the `/http` directory for testing all endp
 └── [POST] add-credit.http
 ```
 
+### Test Coverage
+The project includes unit test and integration test.
+![Coverage](./doc/coverage.png)
+
 ### Develop environment test
 
 1. Get your API key from the deployment output
