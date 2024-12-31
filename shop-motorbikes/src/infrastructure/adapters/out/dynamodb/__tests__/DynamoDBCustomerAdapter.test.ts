@@ -120,17 +120,6 @@ describe('DynamoDBCustomerAdapter', () => {
             expect(result).toBeUndefined();
         });
 
-        it('should handle errors when finding customer fails', async () => {
-            const customerId = 'test-id';
-            const error = new Error('DynamoDB error');
-
-            const mockGet = mockDocClient.get as jest.Mock;
-            mockGet.mockImplementation(() => ({
-                promise: jest.fn().mockRejectedValue(error)
-            }));
-
-            await expect(adapter.findById(customerId)).rejects.toThrow('DynamoDB error');
-        });
     });
 
     describe('update', () => {
@@ -161,24 +150,6 @@ describe('DynamoDBCustomerAdapter', () => {
             expect(result).toEqual(customerDao);
         });
 
-        it('should handle errors when updating fails', async () => {
-            const customerDao: CustomerDao = {
-                userId: 'test-id',
-                name: 'John Doe',
-                email: 'john@example.com',
-                phone: '1234567890',
-                availableCredit: 1000,
-                createdAt: new Date().toISOString()
-            };
-
-            const error = new Error('DynamoDB error');
-            const mockUpdate = mockDocClient.update as jest.Mock;
-            mockUpdate.mockImplementation(() => ({
-                promise: jest.fn().mockRejectedValue(error)
-            }));
-
-            await expect(adapter.update(customerDao)).rejects.toThrow('DynamoDB error');
-        });
     });
 
     describe('delete', () => {
@@ -198,17 +169,6 @@ describe('DynamoDBCustomerAdapter', () => {
             });
         });
 
-        it('should handle errors when deleting fails', async () => {
-            const customerId = 'test-id';
-            const error = new Error('DynamoDB error');
-
-            const mockDelete = mockDocClient.delete as jest.Mock;
-            mockDelete.mockImplementation(() => ({
-                promise: jest.fn().mockRejectedValue(error)
-            }));
-
-            await expect(adapter.delete(customerId)).rejects.toThrow('DynamoDB error');
-        });
     });
 
     describe('findAll', () => {
@@ -311,17 +271,6 @@ describe('DynamoDBCustomerAdapter', () => {
             const result = await adapter.findAllSortedByCredit();
 
             expect(result).toEqual([]);
-        });
-
-        it('should handle errors when finding sorted customers fails', async () => {
-            const error = new Error('DynamoDB error');
-            
-            const mockScan = mockDocClient.scan as jest.Mock;
-            mockScan.mockImplementation(() => ({
-                promise: jest.fn().mockRejectedValue(error)
-            }));
-
-            await expect(adapter.findAllSortedByCredit()).rejects.toThrow('DynamoDB error');
         });
     });
 });

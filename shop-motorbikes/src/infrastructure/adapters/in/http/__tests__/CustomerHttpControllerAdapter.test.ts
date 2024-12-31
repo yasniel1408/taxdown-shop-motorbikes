@@ -1,41 +1,41 @@
 import "reflect-metadata";
-import { CustomerHttpControllerAdapter } from "../CustomerHttpControllerAdapter";
-import { CreateCustomerService } from "../../../../../application/CreateCustomerService";
-import { GetCustomerByIdService } from "../../../../../application/GetCustomerByIdService";
-import { UpdateCustomerService } from "../../../../../application/UpdateCustomerService";
-import { DeleteCustomerService } from "../../../../../application/DeleteCustomerService";
-import { AddCreditToCustomerService } from "../../../../../application/AddCreditToCustomerService";
-import { GetAllCustomersService } from "../../../../../application/GetAllCustomersService";
+import { CustomerHttpControllerAdapter } from '../CustomerHttpControllerAdapter';
+import { GetAllCustomersService } from '../../../../../application/GetAllCustomersService';
+import { GetCustomerByIdService } from '../../../../../application/GetCustomerByIdService';
+import { CreateCustomerService } from '../../../../../application/CreateCustomerService';
+import { UpdateCustomerService } from '../../../../../application/UpdateCustomerService';
+import { DeleteCustomerService } from '../../../../../application/DeleteCustomerService';
+import { AddCreditToCustomerService } from '../../../../../application/AddCreditToCustomerService';
 import { Request, Response, NextFunction } from 'express';
-import { CustomerDtoResponse } from "../dtos/response/CustomerDtoResponse";
-import { CreateCustomerDtoRequest } from "../dtos/request/CreateCustomerDtoRequest";
-import { UpdateCustomerDtoRequest } from "../dtos/request/UpdateCustomerDtoRequest";
-import { AddCreditDtoRequest } from "../dtos/request/AddCreditDtoRequest";
+import { CustomerDao } from '../../../out/dynamodb/dao/CustomerDao';
 
-jest.mock("../../../../../application/CreateCustomerService");
-jest.mock("../../../../../application/GetCustomerByIdService");
-jest.mock("../../../../../application/UpdateCustomerService");
-jest.mock("../../../../../application/DeleteCustomerService");
-jest.mock("../../../../../application/AddCreditToCustomerService");
-jest.mock("../../../../../application/GetAllCustomersService");
+jest.mock('../../../../../application/GetAllCustomersService');
+jest.mock('../../../../../application/GetCustomerByIdService');
+jest.mock('../../../../../application/CreateCustomerService');
+jest.mock('../../../../../application/UpdateCustomerService');
+jest.mock('../../../../../application/DeleteCustomerService');
+jest.mock('../../../../../application/AddCreditToCustomerService');
 
 describe('CustomerHttpControllerAdapter', () => {
     let adapter: CustomerHttpControllerAdapter;
-    let mockCreateCustomerService: jest.Mocked<CreateCustomerService>;
+    let mockGetAllCustomersService: jest.Mocked<GetAllCustomersService>;
     let mockGetCustomerByIdService: jest.Mocked<GetCustomerByIdService>;
+    let mockCreateCustomerService: jest.Mocked<CreateCustomerService>;
     let mockUpdateCustomerService: jest.Mocked<UpdateCustomerService>;
     let mockDeleteCustomerService: jest.Mocked<DeleteCustomerService>;
     let mockAddCreditToCustomerService: jest.Mocked<AddCreditToCustomerService>;
-    let mockGetAllCustomersService: jest.Mocked<GetAllCustomersService>;
     let mockRequest: Partial<Request>;
     let mockResponse: Partial<Response>;
-    let mockNext: NextFunction;
+    let mockNext: jest.Mock;
 
     beforeEach(() => {
-        mockCreateCustomerService = {
+        mockGetAllCustomersService = {
             execute: jest.fn()
         } as any;
         mockGetCustomerByIdService = {
+            execute: jest.fn()
+        } as any;
+        mockCreateCustomerService = {
             execute: jest.fn()
         } as any;
         mockUpdateCustomerService = {
@@ -47,9 +47,14 @@ describe('CustomerHttpControllerAdapter', () => {
         mockAddCreditToCustomerService = {
             execute: jest.fn()
         } as any;
-        mockGetAllCustomersService = {
-            execute: jest.fn()
-        } as any;
+
+        mockRequest = {};
+        mockResponse = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn().mockReturnThis(),
+            send: jest.fn().mockReturnThis()
+        };
+        mockNext = jest.fn();
 
         adapter = new CustomerHttpControllerAdapter(
             mockCreateCustomerService,
@@ -59,258 +64,211 @@ describe('CustomerHttpControllerAdapter', () => {
             mockAddCreditToCustomerService,
             mockGetAllCustomersService
         );
-
-        mockResponse = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn()
-        };
-        mockNext = jest.fn();
-    });
-
-    describe('createCustomer', () => {
-        it('should create a customer successfully', async () => {
-            const customerDto: CreateCustomerDtoRequest = {
-                name: 'John Doe',
-                email: 'john@example.com',
-                phone: '1234567890',
-                availableCredit: 1000
-            };
-
-            const expectedResponse: CustomerDtoResponse = {
-                userId: 'test-id',
-                name: customerDto.name,
-                email: customerDto.email,
-                phone: customerDto.phone,
-                availableCredit: customerDto.availableCredit,
-                createdAt: new Date().toISOString()
-            };
-
-            mockRequest = {
-                body: customerDto
-            };
-
-            mockCreateCustomerService.execute.mockResolvedValue(expectedResponse);
-
-            await adapter.createCustomer(mockRequest as Request, mockResponse as Response, mockNext);
-
-            expect(mockCreateCustomerService.execute).toHaveBeenCalledWith(customerDto);
-            expect(mockResponse.status).toHaveBeenCalledWith(201);
-            expect(mockResponse.json).toHaveBeenCalledWith(expectedResponse);
-        });
-
-        it('should handle errors when creating a customer', async () => {
-            const error = new Error('Creation failed');
-            mockRequest = {
-                body: {}
-            };
-
-            mockCreateCustomerService.execute.mockRejectedValue(error);
-
-            await adapter.createCustomer(mockRequest as Request, mockResponse as Response, mockNext);
-
-            expect(mockNext).toHaveBeenCalledWith(error);
-        });
-    });
-
-    describe('getCustomerById', () => {
-        it('should get a customer by id successfully', async () => {
-            const customerId = 'test-id';
-            const expectedResponse: CustomerDtoResponse = {
-                userId: customerId,
-                name: 'John Doe',
-                email: 'john@example.com',
-                phone: '1234567890',
-                availableCredit: 1000,
-                createdAt: new Date().toISOString()
-            };
-
-            mockRequest = {
-                params: { userId: customerId }
-            };
-
-            mockGetCustomerByIdService.execute.mockResolvedValue(expectedResponse);
-
-            await adapter.getCustomerById(mockRequest as Request, mockResponse as Response, mockNext);
-
-            expect(mockGetCustomerByIdService.execute).toHaveBeenCalledWith(customerId);
-            expect(mockResponse.status).toHaveBeenCalledWith(200);
-            expect(mockResponse.json).toHaveBeenCalledWith(expectedResponse);
-        });
-
-        it('should handle errors when getting a customer', async () => {
-            const error = new Error('Customer not found');
-            mockRequest = {
-                params: { userId: 'non-existent-id' }
-            };
-
-            mockGetCustomerByIdService.execute.mockRejectedValue(error);
-
-            await adapter.getCustomerById(mockRequest as Request, mockResponse as Response, mockNext);
-
-            expect(mockNext).toHaveBeenCalledWith(error);
-        });
-    });
-
-    describe('updateCustomer', () => {
-        it('should update a customer successfully', async () => {
-            const customerId = 'test-id';
-            const updateDto: UpdateCustomerDtoRequest = {
-                name: 'John Doe Updated',
-                email: 'john.updated@example.com'
-            };
-
-            const expectedResponse: CustomerDtoResponse = {
-                userId: customerId,
-                name: updateDto.name!,
-                email: updateDto.email!,
-                availableCredit: 1000,
-                createdAt: new Date().toISOString()
-            };
-
-            mockRequest = {
-                params: { userId: customerId },
-                body: updateDto
-            };
-
-            mockUpdateCustomerService.execute.mockResolvedValue(expectedResponse);
-
-            await adapter.updateCustomer(mockRequest as Request, mockResponse as Response, mockNext);
-
-            expect(mockUpdateCustomerService.execute).toHaveBeenCalledWith(customerId, updateDto);
-            expect(mockResponse.status).toHaveBeenCalledWith(200);
-            expect(mockResponse.json).toHaveBeenCalledWith(expectedResponse);
-        });
-
-        it('should handle errors when updating a customer', async () => {
-            const error = new Error('Update failed');
-            mockRequest = {
-                params: { userId: 'test-id' },
-                body: {}
-            };
-
-            mockUpdateCustomerService.execute.mockRejectedValue(error);
-
-            await adapter.updateCustomer(mockRequest as Request, mockResponse as Response, mockNext);
-
-            expect(mockNext).toHaveBeenCalledWith(error);
-        });
-    });
-
-    describe('deleteCustomer', () => {
-        it('should delete a customer successfully', async () => {
-            const customerId = 'test-id';
-            mockRequest = {
-                params: { userId: customerId }
-            };
-
-            await adapter.deleteCustomer(mockRequest as Request, mockResponse as Response, mockNext);
-
-            expect(mockDeleteCustomerService.execute).toHaveBeenCalledWith(customerId);
-            expect(mockResponse.status).toHaveBeenCalledWith(204);
-            expect(mockResponse.json).toHaveBeenCalledWith();
-        });
-
-        it('should handle errors when deleting a customer', async () => {
-            const error = new Error('Delete failed');
-            mockRequest = {
-                params: { userId: 'test-id' }
-            };
-
-            mockDeleteCustomerService.execute.mockRejectedValue(error);
-
-            await adapter.deleteCustomer(mockRequest as Request, mockResponse as Response, mockNext);
-
-            expect(mockNext).toHaveBeenCalledWith(error);
-        });
-    });
-
-    describe('addCredit', () => {
-        it('should add credit to a customer successfully', async () => {
-            const customerId = 'test-id';
-            const creditDto: AddCreditDtoRequest = {
-                amount: 500
-            };
-
-            const expectedResponse: CustomerDtoResponse = {
-                userId: customerId,
-                name: 'John Doe',
-                email: 'john@example.com',
-                availableCredit: 1500,
-                createdAt: new Date().toISOString()
-            };
-
-            mockRequest = {
-                params: { userId: customerId },
-                body: creditDto
-            };
-
-            mockAddCreditToCustomerService.execute.mockResolvedValue(expectedResponse);
-
-            await adapter.addCredit(mockRequest as Request, mockResponse as Response, mockNext);
-
-            expect(mockAddCreditToCustomerService.execute).toHaveBeenCalledWith(customerId, creditDto.amount);
-            expect(mockResponse.status).toHaveBeenCalledWith(200);
-            expect(mockResponse.json).toHaveBeenCalledWith(expectedResponse);
-        });
-
-        it('should handle errors when adding credit', async () => {
-            const error = new Error('Add credit failed');
-            mockRequest = {
-                params: { userId: 'test-id' },
-                body: { amount: -100 }
-            };
-
-            mockAddCreditToCustomerService.execute.mockRejectedValue(error);
-
-            await adapter.addCredit(mockRequest as Request, mockResponse as Response, mockNext);
-
-            expect(mockNext).toHaveBeenCalledWith(error);
-        });
     });
 
     describe('getAllCustomers', () => {
         it('should get all customers successfully', async () => {
-            const expectedResponse: CustomerDtoResponse[] = [
+            const customers = [
                 {
-                    userId: 'test-id-1',
+                    userId: '1',
                     name: 'John Doe',
                     email: 'john@example.com',
+                    phone: '1234567890',
                     availableCredit: 1000,
                     createdAt: new Date().toISOString()
-                },
+                }
+            ];
+            mockGetAllCustomersService.execute.mockResolvedValueOnce(customers);
+            mockRequest.query = {};
+
+            await adapter.getAllCustomers(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockGetAllCustomersService.execute).toHaveBeenCalledWith(false);
+            expect(mockResponse.status).toHaveBeenCalledWith(200);
+            expect(mockResponse.json).toHaveBeenCalledWith(customers);
+        });
+
+        it('should sort customers by credit when sortByCredit is true', async () => {
+            const customers = [
                 {
-                    userId: 'test-id-2',
-                    name: 'Jane Doe',
-                    email: 'jane@example.com',
+                    userId: '1',
+                    name: 'John Doe',
+                    email: 'john@example.com',
+                    phone: '1234567890',
                     availableCredit: 2000,
                     createdAt: new Date().toISOString()
                 }
             ];
-
-            mockRequest = {
-                query: { sortByCredit: 'true' }
-            };
-
-            mockGetAllCustomersService.execute.mockResolvedValue(expectedResponse);
+            mockGetAllCustomersService.execute.mockResolvedValueOnce(customers);
+            mockRequest.query = { sortByCredit: 'true' };
 
             await adapter.getAllCustomers(mockRequest as Request, mockResponse as Response, mockNext);
 
             expect(mockGetAllCustomersService.execute).toHaveBeenCalledWith(true);
             expect(mockResponse.status).toHaveBeenCalledWith(200);
-            expect(mockResponse.json).toHaveBeenCalledWith(expectedResponse);
+            expect(mockResponse.json).toHaveBeenCalledWith(customers);
         });
 
-        it('should handle errors when getting all customers', async () => {
-            const error = new Error('Get all failed');
-            mockRequest = {
-                query: {}
-            };
-
-            mockGetAllCustomersService.execute.mockRejectedValue(error);
+        it('should handle errors when getting customers', async () => {
+            mockGetAllCustomersService.execute.mockRejectedValueOnce(new Error('Service error'));
+            mockRequest.query = {};
 
             await adapter.getAllCustomers(mockRequest as Request, mockResponse as Response, mockNext);
 
-            expect(mockNext).toHaveBeenCalledWith(error);
+            expect(mockNext).toHaveBeenCalledWith(new Error('Service error'));
+        });
+    });
+
+    describe('getCustomerById', () => {
+        const customerId = 'test-id';
+
+        it('should get a customer by id successfully', async () => {
+            const customer = {
+                userId: customerId,
+                name: 'John Doe',
+                email: 'john@example.com',
+                phone: '1234567890',
+                availableCredit: 1000,
+                createdAt: new Date().toISOString()
+            };
+            mockGetCustomerByIdService.execute.mockResolvedValueOnce(customer);
+            mockRequest.params = { id: customerId };
+
+            await adapter.getCustomerById(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockResponse.status).toHaveBeenCalledWith(200);
+            expect(mockResponse.json).toHaveBeenCalledWith(customer);
+        });
+
+        it('should handle errors when getting customer by id', async () => {
+            mockGetCustomerByIdService.execute.mockRejectedValueOnce(new Error('Service error'));
+            mockRequest.params = { id: customerId };
+
+            await adapter.getCustomerById(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockNext).toHaveBeenCalledWith(new Error('Service error'));
+        });
+    });
+
+    describe('createCustomer', () => {
+        const customerData: Omit<CustomerDao, 'userId' | 'createdAt'> = {
+            name: 'John Doe',
+            email: 'john@example.com',
+            phone: '1234567890',
+            availableCredit: 1000
+        };
+
+        it('should create a customer successfully', async () => {
+            const createdCustomer = {
+                ...customerData,
+                userId: 'new-id',
+                createdAt: new Date().toISOString()
+            };
+            mockCreateCustomerService.execute.mockResolvedValueOnce(createdCustomer);
+            mockRequest.body = customerData;
+
+            await adapter.createCustomer(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockCreateCustomerService.execute).toHaveBeenCalledWith(customerData);
+            expect(mockResponse.status).toHaveBeenCalledWith(201);
+            expect(mockResponse.json).toHaveBeenCalledWith(createdCustomer);
+        });
+
+        it('should handle errors when creating customer', async () => {
+            mockCreateCustomerService.execute.mockRejectedValueOnce(new Error('Service error'));
+            mockRequest.body = customerData;
+
+            await adapter.createCustomer(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockNext).toHaveBeenCalledWith(new Error('Service error'));
+        });
+    });
+
+    describe('updateCustomer', () => {
+        const customerId = 'test-id';
+        const customerData: CustomerDao = {
+            userId: customerId,
+            name: 'John Doe Updated',
+            email: 'john@example.com',
+            phone: '1234567890',
+            availableCredit: 2000,
+            createdAt: new Date().toISOString()
+        };
+
+        it('should update a customer successfully', async () => {
+            mockUpdateCustomerService.execute.mockResolvedValueOnce(customerData);
+            mockRequest.params = { id: customerId };
+            mockRequest.body = customerData;
+
+            await adapter.updateCustomer(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockResponse.status).toHaveBeenCalledWith(200);
+            expect(mockResponse.json).toHaveBeenCalledWith(customerData);
+        });
+
+        it('should handle errors when updating customer', async () => {
+            mockUpdateCustomerService.execute.mockRejectedValueOnce(new Error('Service error'));
+            mockRequest.params = { id: customerId };
+            mockRequest.body = customerData;
+
+            await adapter.updateCustomer(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockNext).toHaveBeenCalledWith(new Error('Service error'));
+        });
+    });
+
+    describe('deleteCustomer', () => {
+        const customerId = 'test-id';
+
+        it('should delete a customer successfully', async () => {
+            mockRequest.params = { id: customerId };
+
+            await adapter.deleteCustomer(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockResponse.status).toHaveBeenCalledWith(204);
+        });
+
+        it('should handle errors when deleting a customer', async () => {
+            mockDeleteCustomerService.execute.mockRejectedValueOnce(new Error('Service error'));
+            mockRequest.params = { id: customerId };
+
+            await adapter.deleteCustomer(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockNext).toHaveBeenCalledWith(new Error('Service error'));
+        });
+    });
+
+    describe('addCredit', () => {
+        const customerId = 'test-id';
+        const availableCredit = 500;
+
+        it('should add credit to a customer successfully', async () => {
+            const updatedCustomer = {
+                userId: customerId,
+                name: 'John Doe',
+                email: 'john@example.com',
+                phone: '1234567890',
+                availableCredit: 1500,
+                createdAt: new Date().toISOString()
+            };
+            mockAddCreditToCustomerService.execute.mockResolvedValueOnce(updatedCustomer);
+            mockRequest.params = { id: customerId };
+            mockRequest.body = { amount: availableCredit };
+
+            await adapter.addCredit(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockResponse.status).toHaveBeenCalledWith(200);
+            expect(mockResponse.json).toHaveBeenCalledWith(updatedCustomer);
+        });
+
+        it('should handle errors when adding credit', async () => {
+            mockAddCreditToCustomerService.execute.mockRejectedValueOnce(new Error('Service error'));
+            mockRequest.params = { id: customerId };
+            mockRequest.body = { amount: availableCredit };
+
+            await adapter.addCredit(mockRequest as Request, mockResponse as Response, mockNext);
+
+            expect(mockNext).toHaveBeenCalledWith(new Error('Service error'));
         });
     });
 });
