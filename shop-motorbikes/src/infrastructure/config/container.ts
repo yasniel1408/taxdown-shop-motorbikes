@@ -24,6 +24,6 @@ container.registerSingleton<AddCreditToCustomerService>("AddCreditToCustomerServ
 container.registerSingleton<GetAllCustomersService>("GetAllCustomersService", GetAllCustomersService);
 
 // Register controller
-container.registerSingleton<CustomerHttpControllerAdapter>("CustomerInputPort", CustomerHttpControllerAdapter);
+container.registerSingleton<CustomerHttpControllerAdapter>("CustomerHttpControllerAdapter", CustomerHttpControllerAdapter);
 
 export { container };

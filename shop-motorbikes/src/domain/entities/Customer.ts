@@ -32,7 +32,11 @@ export class Customer {
     return this._phone;
   }
 
-  public get credit(): number {
+  public get credit(): Credit {
+    return this._credit;
+  }
+
+  public get availableCredit(): number {
     return this._credit.value;
   }
 

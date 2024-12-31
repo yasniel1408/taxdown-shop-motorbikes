@@ -1,9 +1,9 @@
 import { inject, injectable } from "tsyringe";
 import { CustomerFactory } from '../domain/CustomerFactory';
-import { CustomerDtoRequest } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoRequest';
-import { CreateCustomerDtoResponse } from '../infrastructure/adapters/in/http/dtos/request/CreateCustomerDtoResponse';
 import { CustomerDao } from '../infrastructure/adapters/out/dynamodb/dao/CustomerDao';
 import { DynamoDBCustomerAdapter } from "../infrastructure/adapters/out/dynamodb/DynamoDBCustomerAdapter";
+import { CustomerDtoResponse } from "../infrastructure/adapters/in/http/dtos/response/CustomerDtoResponse";
+import { CreateCustomerDtoRequest } from "../infrastructure/adapters/in/http/dtos/request/CreateCustomerDtoRequest";
 
 @injectable()
 export class CreateCustomerService {
@@ -12,7 +12,7 @@ export class CreateCustomerService {
         private readonly customerdb: DynamoDBCustomerAdapter
     ) {}
 
-    async execute(createCustomerDto: CreateCustomerDtoResponse): Promise<CustomerDtoRequest> {
+    async execute(createCustomerDto: CreateCustomerDtoRequest): Promise<CustomerDtoResponse> {
         const customerDomain = CustomerFactory.create(
             createCustomerDto.name,
             createCustomerDto.email,
@@ -25,7 +25,7 @@ export class CreateCustomerService {
             name: customerDomain.name,
             email: customerDomain.email,
             phone: customerDomain.phone,
-            availableCredit: customerDomain.credit,
+            availableCredit: customerDomain.credit.value,
             createdAt: customerDomain.createdAt
         } as CustomerDao);
 

@@ -1,7 +1,7 @@
-import { CustomerDtoRequest } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoRequest';
-import { UpdateCustomerDtoResponse } from '../infrastructure/adapters/in/http/dtos/request/UpdateCustomerDtoResponse';
 import { inject, injectable } from 'tsyringe';
 import { DynamoDBCustomerAdapter } from '../infrastructure/adapters/out/dynamodb/DynamoDBCustomerAdapter';
+import { UpdateCustomerDtoRequest } from '../infrastructure/adapters/in/http/dtos/request/UpdateCustomerDtoRequest';
+import { CustomerDtoResponse } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoResponse';
 
 @injectable()
 export class UpdateCustomerService {
@@ -10,7 +10,7 @@ export class UpdateCustomerService {
     private readonly customerdb: DynamoDBCustomerAdapter
 ) {}
 
-  async execute(customerId: string, customerData: UpdateCustomerDtoResponse): Promise<CustomerDtoRequest> {
+  async execute(customerId: string, customerData: UpdateCustomerDtoRequest): Promise<CustomerDtoResponse> {
     const existingCustomer = await this.customerdb.findById(customerId);
     if (!existingCustomer) {
       throw new Error('CUSTOMER_NOT_FOUND');

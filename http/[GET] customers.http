@@ -2,3 +2,8 @@
 GET {{baseUrl}}/api/customers HTTP/1.1
 x-api-key: {{apiKey}}
 Content-Type: application/json
+
+### Get All Customers Sorted by Credit
+GET {{baseUrl}}/api/customers?sortByCredit=true HTTP/1.1
+x-api-key: {{apiKey}}
+Content-Type: application/json

@@ -6,6 +6,7 @@ import {
   UpdateCommand,
   DeleteCommand,
   ScanCommand,
+  QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { CustomerDao } from "./dao/CustomerDao";
 import { CustomerDatabasePort } from "../../../../domain/ports/out/CustomerDatabasePort";
@@ -17,9 +18,9 @@ export class DynamoDBCustomerAdapter implements CustomerDatabasePort<CustomerDao
   private readonly tableName: string;
 
   constructor() {
-    const isDev = process.env.NODE_ENV === 'development' || process.env.IS_OFFLINE;
+    const isLocal = process.env.NODE_ENV === 'local' || process.env.IS_OFFLINE;
     
-    const client = new DynamoDBClient(isDev ? {
+    const client = new DynamoDBClient(isLocal ? {
       region: 'localhost',
       endpoint: 'http://localhost:8000',
       credentials: {
@@ -57,6 +58,21 @@ export class DynamoDBCustomerAdapter implements CustomerDatabasePort<CustomerDao
       TableName: this.tableName,
     };
     const result = await this.docClient.send(new ScanCommand(params));
+    return result.Items as CustomerDao[];
+  }
+
+  async findAllSortedByCredit() {
+    const params = {
+      TableName: this.tableName,
+      IndexName: 'CreditIndex',
+      KeyConditionExpression: "availableCredit >= :minCredit",
+      ExpressionAttributeValues: {
+        ":minCredit": 0
+      },
+      ScanIndexForward: false  // false = descending order (highest to lowest)
+    };
+
+    const result = await this.docClient.send(new QueryCommand(params));
     return result.Items as CustomerDao[];
   }
 

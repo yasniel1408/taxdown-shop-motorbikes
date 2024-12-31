@@ -41,14 +41,13 @@ const params = {
 
 const createTable = async () => {
     try {
+        await dynamodb.deleteTable({ TableName: params.TableName }).catch(() => {});
+        console.log('Table deleted if existed');
+        
         const result = await dynamodb.createTable(params);
         console.log('Table created successfully:', result);
     } catch (error) {
-        if (error.name === 'ResourceInUseException') {
-            console.log('Table already exists');
-        } else {
-            console.error('Error creating table:', error);
-        }
+        console.error('Error creating table:', error);
     }
 };
 

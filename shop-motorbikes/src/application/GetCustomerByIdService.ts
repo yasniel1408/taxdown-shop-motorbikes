@@ -1,7 +1,6 @@
 import { inject, injectable } from 'tsyringe';
-import { CustomerDtoRequest } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoRequest';
-import { CustomerDao } from '../infrastructure/adapters/out/dynamodb/dao/CustomerDao';
 import { DynamoDBCustomerAdapter } from '../infrastructure/adapters/out/dynamodb/DynamoDBCustomerAdapter';
+import { CustomerDtoResponse } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoResponse';
 
 @injectable()
 export class GetCustomerByIdService {
@@ -10,20 +9,11 @@ export class GetCustomerByIdService {
     private readonly customerdb: DynamoDBCustomerAdapter
 ) {}
 
-  async execute(customerId: string): Promise<CustomerDtoRequest> {
-    const customer = await this.customerdb.findById(customerId);
-    if (!customer) {
+  async execute(customerId: string): Promise<CustomerDtoResponse> {
+    const customerDao = await this.customerdb.findById(customerId);
+    if (!customerDao) {
       throw new Error('CUSTOMER_NOT_FOUND');
     }
-    
-    const customerDao = await this.customerdb.save({
-      userId: customer.userId,
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-      availableCredit: customer.availableCredit,
-      createdAt: customer.createdAt
-    } as CustomerDao);
 
     return {
       userId: customerDao.userId,

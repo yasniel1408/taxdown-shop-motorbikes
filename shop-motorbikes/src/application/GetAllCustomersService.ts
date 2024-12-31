@@ -1,18 +1,21 @@
-import { inject, injectable } from 'tsyringe';
-import { CustomerDtoRequest } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoRequest';
-import { DynamoDBCustomerAdapter } from '../infrastructure/adapters/out/dynamodb/DynamoDBCustomerAdapter';
+import { injectable, inject } from "tsyringe";
+import { CustomerDatabasePort } from "../domain/ports/out/CustomerDatabasePort";
+import { CustomerDao } from "../infrastructure/adapters/out/dynamodb/dao/CustomerDao";
+import { CustomerDtoResponse } from "../infrastructure/adapters/in/http/dtos/response/CustomerDtoResponse";
 
 @injectable()
-export class GetAllCustomersService  {
+export class GetAllCustomersService {
   constructor(
     @inject("DynamoDBCustomerAdapter")
-    private readonly customerdb: DynamoDBCustomerAdapter
-) {}
+    private readonly customerdb: CustomerDatabasePort<CustomerDao>
+  ) {}
 
-  async execute(): Promise<CustomerDtoRequest[]> {
-    const customers = await this.customerdb.findAll();
+  async execute(sortByCredit: boolean = false): Promise<CustomerDtoResponse[]> {
+    const customers = sortByCredit
+      ? await this.customerdb.findAllSortedByCredit()
+      : await this.customerdb.findAll();
 
-    return customers.map(customer => ({
+    return customers.map((customer) => ({
       userId: customer.userId,
       name: customer.name,
       email: customer.email,

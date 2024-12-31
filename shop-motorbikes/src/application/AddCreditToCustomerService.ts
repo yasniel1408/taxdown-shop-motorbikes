@@ -1,16 +1,20 @@
 import { inject, injectable } from 'tsyringe';
 import { CustomerFactory } from '../domain/CustomerFactory';
-import { CustomerDtoRequest } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoRequest';
 import { DynamoDBCustomerAdapter } from '../infrastructure/adapters/out/dynamodb/DynamoDBCustomerAdapter';
+import { CustomerDtoResponse } from '../infrastructure/adapters/in/http/dtos/response/CustomerDtoResponse';
 
 @injectable()
 export class AddCreditToCustomerService {
   constructor(
-    @inject("DynamoDBCustomerAdapter")
+    @inject('DynamoDBCustomerAdapter')
     private readonly customerdb: DynamoDBCustomerAdapter
-) {}
+  ) {}
 
-  async execute(customerId: string, amount: number): Promise<CustomerDtoRequest> {
+  async execute(customerId: string, amount: number): Promise<CustomerDtoResponse> {
+    if (amount < 0) {
+      throw new Error('Credit amount cannot be negative');
+    }
+
     const customerDao = await this.customerdb.findById(customerId);
     if (!customerDao) {
       throw new Error('CUSTOMER_NOT_FOUND');
@@ -20,17 +24,15 @@ export class AddCreditToCustomerService {
       customerDao.name,
       customerDao.email,
       customerDao.phone,
-      customerDao.availableCredit
+      customerDao.availableCredit + amount
     );
-    customerDomain.addCredit(amount);
-    customerDomain.id = customerDao.userId;
 
     const customerUpdated = await this.customerdb.update({
-      userId: customerDomain.id,
+      userId: customerDao.userId,
       name: customerDomain.name,
       email: customerDomain.email,
       phone: customerDomain.phone,
-      availableCredit: customerDomain.credit,
+      availableCredit: customerDomain.availableCredit,
       createdAt: customerDomain.createdAt
     });
 

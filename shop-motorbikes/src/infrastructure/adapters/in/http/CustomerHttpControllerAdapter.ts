@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreateCustomerDtoResponse} from './dtos/request/CreateCustomerDtoResponse';
 import { CustomerInputPort } from '../../../../domain/ports/in/CustomerInputPort';
-import { UpdateCustomerDtoResponse } from './dtos/request/UpdateCustomerDtoResponse';
-import { AddCreditDtoResponse } from './dtos/request/AddCreditDtoResponse';
 import { CreateCustomerService } from '../../../../application/CreateCustomerService';
 import { GetCustomerByIdService } from '../../../../application/GetCustomerByIdService';
 import { UpdateCustomerService } from '../../../../application/UpdateCustomerService';
@@ -10,6 +8,8 @@ import { DeleteCustomerService } from '../../../../application/DeleteCustomerSer
 import { AddCreditToCustomerService } from '../../../../application/AddCreditToCustomerService';
 import { GetAllCustomersService } from '../../../../application/GetAllCustomersService';
 import { inject, injectable } from "tsyringe";
+import { AddCreditDtoResponse } from './dtos/request/AddCreditDtoResponse';
+import { UpdateCustomerDtoRequest } from './dtos/request/UpdateCustomerDtoRequest';
 
 @injectable()
 export class CustomerHttpControllerAdapter implements CustomerInputPort<Request, Response, NextFunction> {
@@ -49,7 +49,7 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
   updateCustomer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { userId } = req.params;
-      const dto: UpdateCustomerDtoResponse = req.body;
+      const dto: UpdateCustomerDtoRequest = req.body;
       const customer = await this.updateCustomerService.execute(userId, dto);
       res.status(200).json(customer);
     } catch (error) {
@@ -80,7 +80,9 @@ export class CustomerHttpControllerAdapter implements CustomerInputPort<Request,
 
   getAllCustomers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const customers = await this.getAllCustomersService.execute();
+      console.log(req.query);
+      const sortByCredit = req.query.sortByCredit === 'true';
+      const customers = await this.getAllCustomersService.execute(sortByCredit);
       res.status(200).json(customers);
     } catch (error) {
       next(error);
