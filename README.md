@@ -61,11 +61,11 @@ npm run deploy:dev
 4. To run the API locally:
 
 ```bash
-npm run dev
+npm run start:local
 ```
 if you have some error run this command with serverless version 3 or 4
 ```bash
-npm run start:db && npm run create:table && serverless dev --stage dev
+npm run start:db && npm run create:table && serverless offline --stage local
 ```
 
 The API will be available at `http://localhost:3000`
